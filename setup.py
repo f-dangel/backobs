@@ -5,14 +5,14 @@ from setuptools import find_packages, setup
 # META
 ##############################################################################
 AUTHORS = "F. Dangel"
-NAME = "deepobs-with-pytorch"
+NAME = "backobs"
 PACKAGES = find_packages()
 
 DESCRIPTION = r"Make DeepOBS use BackPACK"
 LONG_DESCR = DESCRIPTION
 
 VERSION = "0.0.1"
-URL = "https://github.com/f-dangel/backpack-with-deepobs"
+URL = "https://github.com/f-dangel/backobs"
 LICENSE = "MIT"
 
 # DEPENDENCIES
