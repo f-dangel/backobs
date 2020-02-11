@@ -1,0 +1,25 @@
+#+STARTUP: hidestars
+#+STARTUP: indent
+
+#+author: F. Dangel
+#+title: How to make DeepOBS use BackPACK
+
+How to make DeepOBS use BackPACK.
+
+* How to use this document?
+** Set up a virtual environment
+ 
+  #+BEGIN_SRC python :exports code :results output
+  print("Hello")
+
+  #+END_SRC
+
+  #+RESULTS:
+  : Hello
+** Installation
+#+BEGIN_SRC bash
+pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
+#+END_SRC
+** The runner
+
+   Copy the runner from [[file:./runner.py][this file]]. Modify it as you wish
