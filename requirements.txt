@@ -1,2 +1,5 @@
--e git://github.com/f-dangel/backpack.git@development#egg=backpack
--e git://github.com/fsschneider/DeepOBS.git@develop#egg=deepobs
+# use the development versions if you want
+# -e git://github.com/f-dangel/backpack.git@development#egg=backpack
+# -e git://github.com/fsschneider/DeepOBS.git@develop#egg=deepobs
+backpack-for-pytorch
+deepobs
