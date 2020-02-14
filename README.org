@@ -34,7 +34,6 @@ There exists a [[file:example/run.py][run script]] you can simply execute from t
 Let's run SGD on the MNIST linear regression task with a learning rate of ~0.1~ and momentum of ~0.9~:
 #+BEGIN_SRC bash
 python example/run.py mnist_logreg --lr 0.1 --momentum 0.9
-python example/run.py mnist_logreg --lr 0.1 --momentum 0.9
 #+END_SRC
 
 *** Not all problems are supported
