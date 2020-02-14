@@ -46,9 +46,9 @@ def integrate_backpack(testproblem):
 
 def _check_can_be_integrated(testproblem):
     """Check if the DeepOBS problem can be extended with BackPACK."""
+    testproblem_class = testproblem.__class__
 
-    def check_is_deepobs_problem(testproblem):
-        testproblem_class = testproblem.__class__
+    def check_is_deepobs_problem():
         if not issubclass(testproblem_class, (TestProblem,)):
             raise ValueError("Expect TestProblem, got {}".format(testproblem_class))
 
@@ -60,5 +60,5 @@ def _check_can_be_integrated(testproblem):
                 )
             )
 
-    check_is_deepobs_problem(testproblem)
+    check_is_deepobs_problem()
     check_supported_by_backpack(testproblem)
