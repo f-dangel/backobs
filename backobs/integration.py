@@ -17,18 +17,23 @@ SUPPORTED = (
 )
 
 
-def integrate_backpack(testproblem):
+def integrate_backpack(testproblem, check=True):
     """Add BackPACK functionality to a DeepOBS test problem.
 
     Parameters:
     -----------
     testproblem : TestProblem instance from deepobs.pytorch
+        The testproblem to be integrated.
+    check: bool (optional)
+        Verify that the testproblem is fully-supported by BackPACK.
+        BackPACK does not fully support all testproblems.
 
     Returns:
     --------
     Extended testproblem.
     """
-    _check_can_be_integrated(testproblem)
+    if check:
+        _check_can_be_integrated(testproblem)
 
     def extend_loss_func(testproblem):
         testproblem._old_loss = testproblem.loss_function
