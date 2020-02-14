@@ -5,6 +5,11 @@
 
 How to make [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] use [[https://backpack.readthedocs.io/en/latest/][BackPACK]].
 
+-----
+
+Fully-supported problems: ~mnist_logreg~, ~fmnist_2c2d~, ~cifar10_3c3d~, ~cifar100_allcnnc~.
+
+
 * Preliminaries 
 ** Set up a virtual environment
 *** Anaconda
@@ -25,11 +30,18 @@ pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
 #+END_SRC
 * Example
 ** The runner
-The [[file:example/][~example/~]] directory contains a [[file:example/runner.py][basic runner]] that integrates BackPACK into DeepOBS test problems. You can modify it to your needs, or leave it as is to run an example.
+The ~[file:example/][example/]]~ directory contains a [[file:example/runner.py][basic runner]] that integrates BackPACK into DeepOBS test problems. You can modify it to your needs, or leave it as is to run an example.
 ** Run SGD on a DeepOBS problem with BackPACK 
 There exists a [[file:example/run.py][run script]] you can simply execute from the command line.
 
 Let's run SGD on the MNIST linear regression task with a learning rate of ~0.1~ and momentum of ~0.9~:
 #+BEGIN_SRC bash
 python example/run.py mnist_logreg --lr 0.1 --momentum 0.9
+python example/run.py mnist_logreg --lr 0.1 --momentum 0.9
+#+END_SRC
+
+** Not all problems are supported
+For instance, this will crash as BackPACK does not support ResNets yet:
+#+BEGIN_SRC 
+python example/run.py svhn_wrn164 --lr 0.1 --momentum 0.9
 #+END_SRC
