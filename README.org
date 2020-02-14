@@ -2,24 +2,34 @@
 #+STARTUP: indent
 
 #+author: F. Dangel
-#+title: How to make DeepOBS use BackPACK
 
-How to make DeepOBS use BackPACK.
+How to make [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] use [[https://backpack.readthedocs.io/en/latest/][BackPACK]].
 
-* How to use this document?
+* Preliminaries 
 ** Set up a virtual environment
- 
-  #+BEGIN_SRC python :exports code :results output
-  print("Hello")
+*** Anaconda
+Use the ~.yml~ file to install all required dependencies into a ~conda~ environment named ~backobs~.
+#+BEGIN_SRC bash
+conda env create -f .conda_env.yml
+#+END_SRC
+Activate it
+#+BEGIN_SRC bash
+conda activate backobs
+#+END_SRC
+*** I don't want to use Anaconda
+Make sure you have ~backpack~ and ~deepobs~ installed in your favorite environment.
 
-  #+END_SRC
-
-  #+RESULTS:
-  : Hello
-** Installation
+** Install ~backobs~
 #+BEGIN_SRC bash
 pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
 #+END_SRC
+* Example
 ** The runner
+The [[file:example/][~example/~]] directory contains a [[file:example/runner.py][basic runner]] that integrates BackPACK into DeepOBS test problems. You can modify it to your needs, or leave it as is to run an example.
+** Run SGD on a DeepOBS problem with BackPACK 
+There exists a [[file:example/run.py][run script]] you can simply execute from the command line.
 
-   Copy the runner from [[file:./runner.py][this file]]. Modify it as you wish
+Let's run SGD on the MNIST linear regression task with a learning rate of ~0.1~ and momentum of ~0.9~:
+#+BEGIN_SRC bash
+python example/run.py mnist_logreg --lr 0.1 --momentum 0.9
+#+END_SRC

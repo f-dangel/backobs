@@ -1,1 +1,4 @@
 **/.mypy_cache
+**/data_deepobs
+**/__pycache__
+**/*egg-info
