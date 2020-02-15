@@ -8,7 +8,7 @@ def make_backpack_runner_for_sgd():
     """Create a BackpackRunner for the SGD optimizer."""
     optimizer_class_sgd = SGD
     hyperparams_sgd = {
-        "lr": {"type": float},
+        "lr": {"type": float, "default": 0.1,},
         "momentum": {"type": float, "default": 0.0,},
     }
 
