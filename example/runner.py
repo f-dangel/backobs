@@ -7,6 +7,17 @@ import numpy
 class BackpackRunner(PTRunner):
     """Runner that supports BackPACK."""
 
+    def __init__(self, optimizer_class, hyperparameter_names, check_compatible=True):
+        """
+        Parameters:
+        -----------
+        check_compatible : bool
+            Check if a testproblem is fully supported by BackPACK and raise
+            an exception if not.
+        """
+        super().__init__(optimizer_class, hyperparameter_names)
+        self._check_compatible = check_compatible
+
     def training(
         self,
         tproblem,
@@ -18,7 +29,7 @@ class BackpackRunner(PTRunner):
         tb_log_dir,
     ):
         # [backobs] Integrate BackPACK. Do not modify!
-        tproblem = integrate_backpack(tproblem)
+        tproblem = integrate_backpack(tproblem, check=self._check_compatible)
 
         opt = self._optimizer_class(tproblem.net.parameters(), **hyperparams)
 
