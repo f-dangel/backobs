@@ -17,5 +17,5 @@ def make_backpack_runner_for_sgd(check=True):
 
 if __name__ == "__main__":
     print("Running BackPACK runner with SGD:")
-    runner = make_backpack_runner_for_sgd()
+    runner = make_backpack_runner_for_sgd(check=False)
     runner.run()
