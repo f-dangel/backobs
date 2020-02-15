@@ -100,12 +100,14 @@ class BackpackRunner(PTRunner):
                             print("[BackPACK] Individual gradient l2 norm shape")
                             for num, param in enumerate(tproblem.net.parameters()):
                                 print(
-                                    "Parameter {}: {}".format(num, param.batch_l2.shape)
+                                    "\tParameter {}: {}".format(
+                                        num, param.batch_l2.shape
+                                    )
                                 )
                             print("[BackPACK] MC-sampled GGN diagonal shape")
                             for num, param in enumerate(tproblem.net.parameters()):
                                 print(
-                                    "Parameter {}: {}".format(
+                                    "\tParameter {}: {}".format(
                                         num, param.diag_ggn_mc.shape
                                     )
                                 )
