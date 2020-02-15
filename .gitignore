@@ -2,3 +2,5 @@
 **/data_deepobs
 **/__pycache__
 **/*egg-info
+src
+**/results
