@@ -7,6 +7,34 @@
 
 Fully-supported problems: ~mnist_logreg~, ~fmnist_2c2d~, ~cifar10_3c3d~, ~cifar100_allcnnc~.
 
+TODO: Fix ~False~ due to wrong command line calls.
+#+BEGIN_SRC 
+SUMMARY
+-------
+PROBLEM             | SUPPORTED
+cifar10_3c3d        | True
+cifar10_vgg16       | False
+cifar10_vgg19       | False
+cifar100_3c3d       | False
+cifar100_allcnnc    | True
+cifar100_vgg16      | False
+cifar100_vgg19      | False
+cifar100_wrn164     | False
+cifar100_wrn404     | False
+fmnist_2c2d         | True
+fmnist_logreg       | True
+fmnist_mlp          | True
+fmnist_vae          | False
+mnist_2c2d          | True
+mnist_logreg        | True
+mnist_mlp           | True
+mnist_vae           | False
+quadratic_deep      | False
+svhn_3c3d           | True
+svhn_wrn164         | False 
+#+END_SRC
+
+
 ** Preliminaries 
 *** Set up a virtual environment
 **** Anaconda
