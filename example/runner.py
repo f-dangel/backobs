@@ -93,7 +93,7 @@ class BackpackRunner(PTRunner):
                     ):
                         batch_loss.backward()
 
-                        # [backobs] This block is for demonstration and can be removed
+                        # [backobs] This block is for demonstration and should be removed
                         time_to_print = batch_count == 0
 
                         if time_to_print:
@@ -111,6 +111,11 @@ class BackpackRunner(PTRunner):
                                         num, param.diag_ggn_mc.shape
                                     )
                                 )
+
+                        # [backobs] This block is for demonstration and should be removed
+                        time_to_quit = batch_count == 5
+                        if time_to_quit:
+                            raise StopIteration
 
                     opt.step()
 
