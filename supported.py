@@ -26,8 +26,6 @@ PROBLEMS = [
 HERE = os.path.dirname(os.path.realpath(__file__))
 FILE = os.path.join(HERE, "example/run.py")
 
-HYPERPARAMS = "-N 1"
-
 RESULTS = {}
 
 
@@ -44,7 +42,7 @@ for testproblem in PROBLEMS:
 
     print("\nRunning {}".format(testproblem))
 
-    exit_code = subprocess.call(["python", FILE, testproblem, HYPERPARAMS])
+    exit_code = subprocess.call(["python", FILE, testproblem])
     crash = exit_code != 0
 
     RESULTS[testproblem] = not crash
