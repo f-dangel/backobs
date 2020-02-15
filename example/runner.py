@@ -87,7 +87,9 @@ class BackpackRunner(PTRunner):
                     # [backobs] Use BackPACK in backward pass
                     with backpack(
                         # [backobs] Choose any BackPACK extension you want
-                        extensions.BatchGrad(),
+                        # extensions.BatchGrad(),
+                        extensions.BatchL2Grad(),
+                        extensions.DiagGGNMC(),
                     ):
                         batch_loss.backward()
 
@@ -95,11 +97,16 @@ class BackpackRunner(PTRunner):
                         time_to_print = batch_count == 0
 
                         if time_to_print:
-                            print("[BackPACK] Individual gradient shape")
+                            print("[BackPACK] Individual gradient l2 norm shape")
+                            for num, param in enumerate(tproblem.net.parameters()):
+                                print(
+                                    "Parameter {}: {}".format(num, param.batch_l2.shape)
+                                )
+                            print("[BackPACK] MC-sampled GGN diagonal shape")
                             for num, param in enumerate(tproblem.net.parameters()):
                                 print(
                                     "Parameter {}: {}".format(
-                                        num, param.grad_batch.shape
+                                        num, param.diag_ggn_mc.shape
                                     )
                                 )
 
