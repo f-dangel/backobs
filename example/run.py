@@ -16,6 +16,9 @@ def make_backpack_runner_for_sgd(check=True):
 
 
 if __name__ == "__main__":
+    # from deepobs.pytorch.config import set_default_device
+    # set_default_device("cpu")
+
     print("Running BackPACK runner with SGD:")
     runner = make_backpack_runner_for_sgd(check=False)
     runner.run(num_epochs=1, batch_size=8)
