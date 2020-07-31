@@ -1,20 +1,46 @@
 """Custom Runner to track statistics. """
 
 from backpack import extend
+from deepobs.pytorch.testproblems import (cifar10_3c3d, cifar10_vgg16,
+                                          cifar10_vgg19, cifar100_3c3d,
+                                          cifar100_allcnnc, cifar100_vgg16,
+                                          cifar100_vgg19, cifar100_wrn164,
+                                          cifar100_wrn404, fmnist_2c2d,
+                                          fmnist_logreg, fmnist_mlp,
+                                          fmnist_vae, mnist_2c2d, mnist_logreg,
+                                          mnist_mlp, mnist_vae, quadratic_deep,
+                                          svhn_3c3d, svhn_wrn164)
 from deepobs.pytorch.testproblems.testproblem import TestProblem
-from deepobs.pytorch.testproblems import (
-    mnist_logreg,
-    cifar10_3c3d,
-    cifar100_allcnnc,
-    fmnist_2c2d,
-)
 
-SUPPORTED = (
+ALL_PROBLEMS = [
+    cifar10_3c3d,
+    cifar10_vgg16,
+    cifar10_vgg19,
+    cifar100_3c3d,
+    cifar100_allcnnc,
+    cifar100_vgg16,
+    cifar100_vgg19,
+    cifar100_wrn164,
+    cifar100_wrn404,
+    fmnist_2c2d,
+    fmnist_logreg,
+    fmnist_mlp,
+    fmnist_vae,
+    mnist_2c2d,
+    mnist_logreg,
+    mnist_mlp,
+    mnist_vae,
+    quadratic_deep,
+    svhn_3c3d,
+    svhn_wrn164,
+]
+
+SUPPORTED_PROBLEMS = [
     mnist_logreg,
     fmnist_2c2d,
     cifar10_3c3d,
     cifar100_allcnnc,
-)
+]
 
 
 def integrate_backpack(testproblem, check=True):
@@ -58,10 +84,10 @@ def _check_can_be_integrated(testproblem):
             raise ValueError("Expect TestProblem, got {}".format(testproblem_class))
 
     def check_supported_by_backpack(testproblem):
-        if not isinstance(testproblem, SUPPORTED):
+        if not isinstance(testproblem, SUPPORTED_PROBLEMS):
             raise ValueError(
                 "{} currently not supported. Working problems: {}".format(
-                    testproblem_class, SUPPORTED
+                    testproblem_class, SUPPORTED_PROBLEMS
                 )
             )
 
