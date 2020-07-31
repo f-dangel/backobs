@@ -71,3 +71,10 @@ For instance, this will crash as BackPACK does not support ResNets yet:
 #+BEGIN_SRC 
 python example/run.py svhn_wrn164 --lr 0.1 --momentum 0.9
 #+END_SRC
+
+** Reproducing the forward pass manually
+Testing [[https://www.backpack.pt][BackPACK]] extensions on a [[https://github.com/fsschneider/DeepOBS][DeepOBS]]
+ problem requires access to the input data and the test only makes sense if the forward pass can correctly be reproduced. The script ~./test/test_forward.py~ checks for which problems this is possible. Run it via
+#+begin_src python :results output
+  python test/test_forward.py
+#+end_src 
