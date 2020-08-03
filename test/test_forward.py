@@ -3,19 +3,33 @@
 Background: Need access to input data for testing BackPACK extensions.
 """
 
+import argparse
+import contextlib
+import random
+
+import numpy
 import torch
-from backobs.integration import integrate_backpack
-from deepobs.pytorch.testproblems import mnist_logreg
+
+from backobs.integration import ALL_PROBLEMS, integrate_backpack
+from deepobs.config import set_data_dir
 
 
-def set_up_problem(tproblem_cls, batch_size, seed=0):
-    """Create problem."""
+def set_deepobs_seed(seed=0):
+    random.seed(seed)
+    numpy.random.seed(seed)
     torch.manual_seed(seed)
+
+
+def set_up_problem(tproblem_cls, batch_size, seed=0, extend=False):
+    """Create problem."""
+    set_deepobs_seed(seed)
 
     tproblem = tproblem_cls(batch_size)
 
-    tproblem.set_up()
-    tproblem = integrate_backpack(tproblem, check=False)
+    with contextlib.redirect_stdout(None):
+        tproblem.set_up()
+    if extend:
+        tproblem = integrate_backpack(tproblem, check=False)
     tproblem.train_init_op()
 
     return tproblem
@@ -36,40 +50,100 @@ def manual_forward_pass(tproblem):
     return loss
 
 
-def forward_pass(tproblem):
+def forward_pass(tproblem, add_regularization_if_available=False):
     """Forward pass in DeepOBS."""
-    loss, _ = tproblem.get_batch_loss_and_accuracy()
+    loss, _ = tproblem.get_batch_loss_and_accuracy(
+        add_regularization_if_available=add_regularization_if_available
+    )
     return loss
 
 
-def manual_forward_pass_correct(tproblem_cls, batch_size, seed=0, verbose=True):
+def manual_forward_pass_correct(
+    tproblem_cls,
+    batch_size,
+    seed=0,
+    verbose=True,
+    add_regularization_if_available=False,
+    extend=False,
+):
     """Check if manual and DeepOBS forward pass match."""
-    tproblem = set_up_problem(tproblem_cls, batch_size, seed=seed)
-    loss = forward_pass(tproblem).item()
+    try:
+        tproblem = set_up_problem(tproblem_cls, batch_size, seed=seed, extend=extend)
+        manual_loss = forward_pass(tproblem).item()
 
-    tproblem = set_up_problem(tproblem_cls, batch_size, seed=seed)
-    manual_loss = forward_pass(tproblem).item()
+        tproblem = set_up_problem(tproblem_cls, batch_size, seed=seed, extend=extend)
+        loss = forward_pass(
+            tproblem, add_regularization_if_available=add_regularization_if_available
+        ).item()
 
-    same = loss == manual_loss
-
-    if verbose:
-        name = tproblem_cls.__name__
-        same_symbol = "✓" if same else "❌"
-        print(
-            "{} [{}]\n\tDeepOBS: {:.5f}, manual: {:.5f}, same: {}".format(
-                same_symbol, name, loss, manual_loss, same
+        same = loss == manual_loss
+        if verbose:
+            name = tproblem_cls.__name__
+            same_symbol = "✓" if same else "❌"
+            print(
+                "{} [{}, l2_reg: {}, BackPACK: {}] DeepOBS: {:.5f}, manual: {:.5f}".format(
+                    same_symbol,
+                    name,
+                    add_regularization_if_available,
+                    extend,
+                    loss,
+                    manual_loss,
+                )
             )
-        )
 
-    return same
+        return same
+
+    except Exception as e:
+        if verbose:
+            name = tproblem_cls.__name__
+            fail = "❌"
+            print(
+                "{} [{}, l2_reg: {}, BackPACK: {}] Raised exception: {}".format(
+                    fail, name, add_regularization_if_available, extend, e
+                )
+            )
+        return False
 
 
 if __name__ == "__main__":
-    from backobs.integration import ALL_PROBLEMS, SUPPORTED_PROBLEMS
-    from deepobs.config import set_data_dir
-
     set_data_dir("~/tmp/data_deepobs")
-    batch_size = 4
 
-    for tproblem_cls in SUPPORTED_PROBLEMS:
-        manual_forward_pass_correct(tproblem_cls, batch_size)
+    parser = argparse.ArgumentParser(
+        description="Compare manual forward pass with DeepOBS"
+    )
+
+    parser.add_argument(
+        "tproblem_cls", type=str, help="Name of the DeepOBS testproblem",
+    )
+    parser.add_argument(
+        "--add_regularization_if_available",
+        action="store_true",
+        help="Add regularization loss",
+    )
+    parser.add_argument(
+        "--extend", action="store_true", help="Extend DeepOBS problem with BackPACK",
+    )
+    parser.add_argument(
+        "--batch_size", type=int, default=3, help="Batch size",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=0, help="Random seed",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        default=True,
+        help="Verbose output to command line",
+    )
+
+    def tproblem_cls_from_str(tproblem_str):
+        for tproblem_cls in ALL_PROBLEMS:
+            if tproblem_cls.__name__ == tproblem_str:
+                return tproblem_cls
+
+        raise ValueError("Unknwn DeepOBS problem: {}".format(tproblem_str))
+
+    kwargs = vars(parser.parse_args())
+    kwargs["tproblem_cls"] = tproblem_cls_from_str(kwargs["tproblem_cls"])
+
+    manual_forward_pass_correct(**kwargs)
