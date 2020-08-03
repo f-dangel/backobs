@@ -3,6 +3,8 @@
 
 #+author: F. Dangel
 
+TODO: How to use with regularization.
+
 * How to make [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] use [[https://backpack.readthedocs.io/en/latest/][BackPACK]].
 
 Fully-supported problems: ~mnist_logreg~, ~fmnist_2c2d~, ~cifar10_3c3d~, ~cifar100_allcnnc~.
@@ -70,8 +72,11 @@ python example/run.py mnist_logreg --lr 0.1 --momentum 0.9
 #+END_SRC
 
 *** Not all problems are supported
-For instance, this will crash as BackPACK does not support ResNets yet:
+ResNets and variational autoencoders are not supported by BackPACK.
+
+For instance, this will crash:
 #+BEGIN_SRC 
+# WideResNet
 python example/run.py svhn_wrn164 --lr 0.1 --momentum 0.9
 #+END_SRC
 
