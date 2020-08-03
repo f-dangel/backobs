@@ -187,4 +187,106 @@ Comments:
 - [X] *Variational auto-encoders* mess with IO storing in [[https://www.backpack.pt][BackPACK]], which is expected.
 - [ ] *Non-deterministic problem*: The forward pass in ~quadrati_deep~ is not deterministic, with or without [[https://www.backpack.pt][BackPACK]]. At least, the losses only differ between manual/DeepOBS forward pass.
 - [X] *Regularized problems* are different from the manual forward pass, as the latter only considers the empirical risk term without regularization. This is expected
+*** Checking the loss sum struture
+[[https://www.backpack.pt][BackPACK]] assumes the loss to be a sum over individual losses. This excludes ~BatchNorm~. In the test ~test/individual_forward.py~ we check whether the mean of individual losses corresponds to the mini-batch loss.
 
+Run the following to reproduce the results:
+#+begin_src bash :results output
+  python test/run_test_individual_forward.py
+#+end_src 
+
+#+RESULTS:
+#+begin_example
+✓ [cifar10_3c3d, l2_reg: False, BackPACK: False] DeepOBS: 2.28687, manual for-loop: 2.28687
+❌ [cifar10_vgg16, l2_reg: False, BackPACK: False] DeepOBS: 2.30151, manual for-loop: 2.30058, BatchNorm? False, Dropout? True
+❌ [cifar10_vgg19, l2_reg: False, BackPACK: False] DeepOBS: 2.30262, manual for-loop: 2.30326, BatchNorm? False, Dropout? True
+✓ [cifar100_3c3d, l2_reg: False, BackPACK: False] DeepOBS: 4.55693, manual for-loop: 4.55693
+❌ [cifar100_allcnnc, l2_reg: False, BackPACK: False] DeepOBS: 4.56741, manual for-loop: 4.56287, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg16, l2_reg: False, BackPACK: False] DeepOBS: 4.60366, manual for-loop: 4.60409, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg19, l2_reg: False, BackPACK: False] DeepOBS: 4.60555, manual for-loop: 4.60602, BatchNorm? False, Dropout? True
+❌ [cifar100_wrn164, l2_reg: False, BackPACK: False] DeepOBS: 4.31506, manual for-loop: 4.37367, BatchNorm? True, Dropout? False
+❌ [cifar100_wrn404, l2_reg: False, BackPACK: False] DeepOBS: 4.61947, manual for-loop: 4.40666, BatchNorm? True, Dropout? False
+✓ [fmnist_2c2d, l2_reg: False, BackPACK: False] DeepOBS: 2.32473, manual for-loop: 2.32473
+✓ [fmnist_logreg, l2_reg: False, BackPACK: False] DeepOBS: 2.30259, manual for-loop: 2.30259
+✓ [fmnist_mlp, l2_reg: False, BackPACK: False] DeepOBS: 2.30591, manual for-loop: 2.30591
+❌ [fmnist_vae, l2_reg: False, BackPACK: False] Raised exception: vae_loss_function() missing 2 required positional arguments: 'mean' and 'std_dev'
+✓ [mnist_2c2d, l2_reg: False, BackPACK: False] DeepOBS: 2.35603, manual for-loop: 2.35603
+✓ [mnist_logreg, l2_reg: False, BackPACK: False] DeepOBS: 2.30259, manual for-loop: 2.30259
+✓ [mnist_mlp, l2_reg: False, BackPACK: False] DeepOBS: 2.29524, manual for-loop: 2.29524
+❌ [mnist_vae, l2_reg: False, BackPACK: False] Raised exception: vae_loss_function() missing 2 required positional arguments: 'mean' and 'std_dev'
+✓ [quadratic_deep, l2_reg: False, BackPACK: False] DeepOBS: 6.66879, manual for-loop: 6.66879
+✓ [svhn_3c3d, l2_reg: False, BackPACK: False] DeepOBS: 2.21970, manual for-loop: 2.21970
+❌ [svhn_wrn164, l2_reg: False, BackPACK: False] DeepOBS: 1.89063, manual for-loop: 1.84587, BatchNorm? True, Dropout? False
+
+
+❌ [cifar10_3c3d, l2_reg: True, BackPACK: False] DeepOBS: 3.54886, manual for-loop: 2.28687, BatchNorm? False, Dropout? False
+❌ [cifar10_vgg16, l2_reg: True, BackPACK: False] DeepOBS: 6.05709, manual for-loop: 2.30058, BatchNorm? False, Dropout? True
+❌ [cifar10_vgg19, l2_reg: True, BackPACK: False] DeepOBS: 6.37784, manual for-loop: 2.30326, BatchNorm? False, Dropout? True
+❌ [cifar100_3c3d, l2_reg: True, BackPACK: False] DeepOBS: 5.94544, manual for-loop: 4.55693, BatchNorm? False, Dropout? False
+❌ [cifar100_allcnnc, l2_reg: True, BackPACK: False] DeepOBS: 4.87410, manual for-loop: 4.56287, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg16, l2_reg: True, BackPACK: False] DeepOBS: 8.40309, manual for-loop: 4.60409, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg19, l2_reg: True, BackPACK: False] DeepOBS: 8.72502, manual for-loop: 4.60602, BatchNorm? False, Dropout? True
+❌ [cifar100_wrn164, l2_reg: True, BackPACK: False] DeepOBS: 4.82936, manual for-loop: 4.37367, BatchNorm? True, Dropout? False
+❌ [cifar100_wrn404, l2_reg: True, BackPACK: False] Raised exception: 'NoneType' object has no attribute 'items'
+✓ [fmnist_2c2d, l2_reg: True, BackPACK: False] DeepOBS: 2.32473, manual for-loop: 2.32473
+✓ [fmnist_logreg, l2_reg: True, BackPACK: False] DeepOBS: 2.30259, manual for-loop: 2.30259
+✓ [fmnist_mlp, l2_reg: True, BackPACK: False] DeepOBS: 2.30591, manual for-loop: 2.30591
+❌ [fmnist_vae, l2_reg: True, BackPACK: False] Raised exception: vae_loss_function() missing 2 required positional arguments: 'mean' and 'std_dev'
+✓ [mnist_2c2d, l2_reg: True, BackPACK: False] DeepOBS: 2.35603, manual for-loop: 2.35603
+✓ [mnist_logreg, l2_reg: True, BackPACK: False] DeepOBS: 2.30259, manual for-loop: 2.30259
+✓ [mnist_mlp, l2_reg: True, BackPACK: False] DeepOBS: 2.29524, manual for-loop: 2.29524
+❌ [mnist_vae, l2_reg: True, BackPACK: False] Raised exception: vae_loss_function() missing 2 required positional arguments: 'mean' and 'std_dev'
+✓ [quadratic_deep, l2_reg: True, BackPACK: False] DeepOBS: 6.66879, manual for-loop: 6.66879
+❌ [svhn_3c3d, l2_reg: True, BackPACK: False] DeepOBS: 3.48170, manual for-loop: 2.21970, BatchNorm? False, Dropout? False
+❌ [svhn_wrn164, l2_reg: True, BackPACK: False] DeepOBS: 2.37303, manual for-loop: 1.84587, BatchNorm? True, Dropout? False
+
+
+✓ [cifar10_3c3d, l2_reg: False, BackPACK: True] DeepOBS: 2.28687, manual for-loop: 2.28687
+❌ [cifar10_vgg16, l2_reg: False, BackPACK: True] DeepOBS: 2.30151, manual for-loop: 2.30058, BatchNorm? False, Dropout? True
+❌ [cifar10_vgg19, l2_reg: False, BackPACK: True] DeepOBS: 2.30262, manual for-loop: 2.30326, BatchNorm? False, Dropout? True
+✓ [cifar100_3c3d, l2_reg: False, BackPACK: True] DeepOBS: 4.55693, manual for-loop: 4.55693
+❌ [cifar100_allcnnc, l2_reg: False, BackPACK: True] DeepOBS: 4.56741, manual for-loop: 4.56287, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg16, l2_reg: False, BackPACK: True] DeepOBS: 4.60366, manual for-loop: 4.60409, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg19, l2_reg: False, BackPACK: True] DeepOBS: 4.60555, manual for-loop: 4.60602, BatchNorm? False, Dropout? True
+❌ [cifar100_wrn164, l2_reg: False, BackPACK: True] DeepOBS: 4.31506, manual for-loop: 4.37367, BatchNorm? True, Dropout? False
+❌ [cifar100_wrn404, l2_reg: False, BackPACK: True] DeepOBS: 4.61947, manual for-loop: 4.40666, BatchNorm? True, Dropout? False
+✓ [fmnist_2c2d, l2_reg: False, BackPACK: True] DeepOBS: 2.32473, manual for-loop: 2.32473
+✓ [fmnist_logreg, l2_reg: False, BackPACK: True] DeepOBS: 2.30259, manual for-loop: 2.30259
+✓ [fmnist_mlp, l2_reg: False, BackPACK: True] DeepOBS: 2.30591, manual for-loop: 2.30591
+❌ [fmnist_vae, l2_reg: False, BackPACK: True] Raised exception: 'tuple' object has no attribute 'size'
+✓ [mnist_2c2d, l2_reg: False, BackPACK: True] DeepOBS: 2.35603, manual for-loop: 2.35603
+✓ [mnist_logreg, l2_reg: False, BackPACK: True] DeepOBS: 2.30259, manual for-loop: 2.30259
+✓ [mnist_mlp, l2_reg: False, BackPACK: True] DeepOBS: 2.29524, manual for-loop: 2.29524
+❌ [mnist_vae, l2_reg: False, BackPACK: True] Raised exception: 'tuple' object has no attribute 'size'
+✓ [quadratic_deep, l2_reg: False, BackPACK: True] DeepOBS: 6.66879, manual for-loop: 6.66879
+✓ [svhn_3c3d, l2_reg: False, BackPACK: True] DeepOBS: 2.21970, manual for-loop: 2.21970
+❌ [svhn_wrn164, l2_reg: False, BackPACK: True] DeepOBS: 1.89063, manual for-loop: 1.84587, BatchNorm? True, Dropout? False
+
+
+❌ [cifar10_3c3d, l2_reg: True, BackPACK: True] DeepOBS: 3.54886, manual for-loop: 2.28687, BatchNorm? False, Dropout? False
+❌ [cifar10_vgg16, l2_reg: True, BackPACK: True] DeepOBS: 6.05709, manual for-loop: 2.30058, BatchNorm? False, Dropout? True
+❌ [cifar10_vgg19, l2_reg: True, BackPACK: True] DeepOBS: 6.37784, manual for-loop: 2.30326, BatchNorm? False, Dropout? True
+❌ [cifar100_3c3d, l2_reg: True, BackPACK: True] DeepOBS: 5.94544, manual for-loop: 4.55693, BatchNorm? False, Dropout? False
+❌ [cifar100_allcnnc, l2_reg: True, BackPACK: True] DeepOBS: 4.87410, manual for-loop: 4.56287, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg16, l2_reg: True, BackPACK: True] DeepOBS: 8.40309, manual for-loop: 4.60409, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg19, l2_reg: True, BackPACK: True] DeepOBS: 8.72502, manual for-loop: 4.60602, BatchNorm? False, Dropout? True
+❌ [cifar100_wrn164, l2_reg: True, BackPACK: True] DeepOBS: 4.82936, manual for-loop: 4.37367, BatchNorm? True, Dropout? False
+❌ [cifar100_wrn404, l2_reg: True, BackPACK: True] Raised exception: 'NoneType' object has no attribute 'items'
+✓ [fmnist_2c2d, l2_reg: True, BackPACK: True] DeepOBS: 2.32473, manual for-loop: 2.32473
+✓ [fmnist_logreg, l2_reg: True, BackPACK: True] DeepOBS: 2.30259, manual for-loop: 2.30259
+✓ [fmnist_mlp, l2_reg: True, BackPACK: True] DeepOBS: 2.30591, manual for-loop: 2.30591
+❌ [fmnist_vae, l2_reg: True, BackPACK: True] Raised exception: 'tuple' object has no attribute 'size'
+✓ [mnist_2c2d, l2_reg: True, BackPACK: True] DeepOBS: 2.35603, manual for-loop: 2.35603
+✓ [mnist_logreg, l2_reg: True, BackPACK: True] DeepOBS: 2.30259, manual for-loop: 2.30259
+✓ [mnist_mlp, l2_reg: True, BackPACK: True] DeepOBS: 2.29524, manual for-loop: 2.29524
+❌ [mnist_vae, l2_reg: True, BackPACK: True] Raised exception: 'tuple' object has no attribute 'size'
+✓ [quadratic_deep, l2_reg: True, BackPACK: True] DeepOBS: 6.66879, manual for-loop: 6.66879
+❌ [svhn_3c3d, l2_reg: True, BackPACK: True] DeepOBS: 3.48170, manual for-loop: 2.21970, BatchNorm? False, Dropout? False
+❌ [svhn_wrn164, l2_reg: True, BackPACK: True] DeepOBS: 2.37303, manual for-loop: 1.84587, BatchNorm? True, Dropout? False
+
+
+#+end_example
+
+Comments:
+- [X] *BatchNorm unsupported*: The ~cifar100_wrn164~, ~cifar100_wrn404~, ~svhn_wrn164~ problems come with ~BatchNorm~ and can thus not be supported.
+- [ ] *Dropout fails test, but* this is just because the order of the two forward passes is different, which leads to different elements being dropped. In principle, it should be able to support the nets with ~Dropout~, i.e. ~cifar100_vgg16~, ~cifar100_vgg19~, ~cifar10_vgg16~, ~cifar10_vgg19~, ~cifar100_allcnnc~.
