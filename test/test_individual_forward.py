@@ -1,42 +1,17 @@
-"""Check that manual forward pass is same as in DeepOBS.
+"""Check that manual mean over individual losses is same as loss in DeepOBS.
 
-Background: Need access to input data for testing BackPACK extensions.
+Background: Check structure of loss to be sum of individual losses.
 """
-
-import argparse
-import contextlib
-import random
-
-import numpy
 import torch
 
-from backobs.integration import ALL_PROBLEMS, integrate_backpack
 from deepobs.config import set_data_dir
+from test_forward import forward_pass, set_up_problem, tproblem_cls_from_str
 
 
-def set_deepobs_seed(seed=0):
-    random.seed(seed)
-    numpy.random.seed(seed)
-    torch.manual_seed(seed)
+def manual_forward_pass_loop(tproblem):
+    """Reconstructed forward pass (for loop over batch) with data access."""
+    batch_size = tproblem._batch_size
 
-
-def set_up_problem(tproblem_cls, batch_size, seed=0, extend=False):
-    """Create problem."""
-    set_deepobs_seed(seed)
-
-    tproblem = tproblem_cls(batch_size)
-
-    with contextlib.redirect_stdout(None):
-        tproblem.set_up()
-    if extend:
-        tproblem = integrate_backpack(tproblem, check=False)
-    tproblem.train_init_op()
-
-    return tproblem
-
-
-def manual_forward_pass(tproblem):
-    """Reconstructed forward pass with explicit access to data."""
     X, y = tproblem._get_next_batch()
     X = X.to(tproblem._device)
     y = y.to(tproblem._device)
@@ -44,21 +19,41 @@ def manual_forward_pass(tproblem):
     reduction = "mean"
     assert tproblem.phase == "train"
 
-    outputs = tproblem.net(X)
-    loss = tproblem.loss_function(reduction=reduction)(outputs, y)
+    losses = []
 
+    for n in range(batch_size):
+        x_n = X[n].unsqueeze(0)
+        y_n = y[n].unsqueeze(0)
+
+        f_n = tproblem.net(x_n)
+        l_n = tproblem.loss_function(reduction=reduction)(f_n, y_n)
+        losses.append(l_n)
+
+    loss = torch.tensor(losses).mean()
     return loss
 
 
-def forward_pass(tproblem, add_regularization_if_available=False):
-    """Forward pass in DeepOBS."""
-    loss, _ = tproblem.get_batch_loss_and_accuracy(
-        add_regularization_if_available=add_regularization_if_available
+def has_batchnorm(model):
+    batchnorm_cls = (
+        torch.nn.BatchNorm1d,
+        torch.nn.BatchNorm2d,
+        torch.nn.BatchNorm3d,
     )
-    return loss
+    for module in model.children():
+        if isinstance(module, batchnorm_cls):
+            return True
+    return False
 
 
-def manual_forward_pass_correct(
+def has_dropout(model):
+    dropout_cls = (torch.nn.Dropout,)
+    for module in model.children():
+        if isinstance(module, dropout_cls):
+            return True
+    return False
+
+
+def manual_forward_pass_loop_correct(
     tproblem_cls,
     batch_size,
     seed=0,
@@ -66,22 +61,22 @@ def manual_forward_pass_correct(
     add_regularization_if_available=False,
     extend=False,
 ):
-    """Check if manual and DeepOBS forward pass match."""
+    """Check if manual for-loop and DeepOBS forward pass match."""
     try:
         tproblem = set_up_problem(tproblem_cls, batch_size, seed=seed, extend=extend)
-        manual_loss = forward_pass(tproblem).item()
+        manual_loss = manual_forward_pass_loop(tproblem)
 
         tproblem = set_up_problem(tproblem_cls, batch_size, seed=seed, extend=extend)
         loss = forward_pass(
             tproblem, add_regularization_if_available=add_regularization_if_available
-        ).item()
+        )
 
-        same = loss == manual_loss
+        same = torch.allclose(manual_loss, loss, atol=1e-5)
         if verbose:
             name = tproblem_cls.__name__
             same_symbol = "✓" if same else "❌"
             print(
-                "{} [{}, l2_reg: {}, BackPACK: {}] DeepOBS: {:.5f}, manual: {:.5f}".format(
+                "{} [{}, l2_reg: {}, BackPACK: {}] DeepOBS: {:.5f}, manual for-loop: {:.5f}".format(
                     same_symbol,
                     name,
                     add_regularization_if_available,
@@ -90,6 +85,10 @@ def manual_forward_pass_correct(
                     manual_loss,
                 )
             )
+            if not same:
+                has_bn = has_batchnorm(tproblem.net)
+                has_do = has_dropout(tproblem.net)
+                print(", BatchNorm? {}, Dropout? {}".format(has_bn, has_do))
 
         return same
 
@@ -105,15 +104,9 @@ def manual_forward_pass_correct(
         return False
 
 
-def tproblem_cls_from_str(tproblem_str):
-    for tproblem_cls in ALL_PROBLEMS:
-        if tproblem_cls.__name__ == tproblem_str:
-            return tproblem_cls
-
-    raise ValueError("Unknwn DeepOBS problem: {}".format(tproblem_str))
-
-
 if __name__ == "__main__":
+    import argparse
+
     set_data_dir("~/tmp/data_deepobs")
 
     parser = argparse.ArgumentParser(
@@ -147,4 +140,4 @@ if __name__ == "__main__":
     kwargs = vars(parser.parse_args())
     kwargs["tproblem_cls"] = tproblem_cls_from_str(kwargs["tproblem_cls"])
 
-    manual_forward_pass_correct(**kwargs)
+    manual_forward_pass_loop_correct(**kwargs)

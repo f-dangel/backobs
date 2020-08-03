@@ -13,14 +13,20 @@ from backobs.integration import ALL_PROBLEMS
 
 if __name__ == "__main__":
     HERE = os.path.abspath(__file__)
-    SCRIPT = os.path.join(os.path.dirname(HERE), "test_forward.py")
+    SCRIPT = os.path.join(os.path.dirname(HERE), "test_individual_forward.py")
 
     batch_size = 3
     verbose = True
     seed = 0
 
-    for extend in [False, True]:
-        for add_regularization_if_available in [False, True]:
+    for extend in [
+        False,
+        True,
+    ]:
+        for add_regularization_if_available in [
+            False,
+            True,
+        ]:
             for tproblem_cls in ALL_PROBLEMS:
 
                 tproblem_cls = tproblem_cls.__name__
