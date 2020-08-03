@@ -10,6 +10,8 @@ Fully-supported problems: ~mnist_logreg~, ~fmnist_2c2d~, ~cifar10_3c3d~, ~cifar1
 TODO: Need to figure out for problems with regularization.
 
 TODO: Fix ~False~ due to wrong command line calls.
+
+** TODO (make more fine-grained) Overview
 #+BEGIN_SRC 
 SUMMARY
 -------
@@ -35,6 +37,7 @@ quadratic_deep      | False
 svhn_3c3d           | True
 svhn_wrn164         | False 
 #+END_SRC
+
 
 
 ** Preliminaries 
@@ -72,9 +75,111 @@ For instance, this will crash as BackPACK does not support ResNets yet:
 python example/run.py svhn_wrn164 --lr 0.1 --momentum 0.9
 #+END_SRC
 
-** Reproducing the forward pass manually
-Testing [[https://www.backpack.pt][BackPACK]] extensions on a [[https://github.com/fsschneider/DeepOBS][DeepOBS]]
- problem requires access to the input data and the test only makes sense if the forward pass can correctly be reproduced. The script ~./test/test_forward.py~ checks for which problems this is possible. Run it via
-#+begin_src python :results output
-  python test/test_forward.py
+** Tests
+*** Reproducing the forward pass manually
+Testing [[https://www.backpack.pt][BackPACK]] extensions on a [[https://github.com/fsschneider/DeepOBS][DeepOBS]] problem requires access to the input data. As a first step, we will check here that the forward pass can correctly be reproduced in a manual fashion starting from the mini-batch.
+
+The script ~./test/test_forward.py~ checks for which problems this is possible ($L_2$ regularization is ignored). We check with/without extending the [[https://github.com/fsschneider/DeepOBS][DeepOBS]] problem with [[https://www.backpack.pt][BackPACK]], and with/without adding the regularization term in the forward pass.
+
+Run the following:
+#+begin_src bash :results output
+  python test/run_test_forward.py
 #+end_src 
+
+#+RESULTS:
+#+begin_example
+✓ [cifar10_3c3d, l2_reg: False, BackPACK: False] DeepOBS: 2.28687, manual: 2.28687
+✓ [cifar10_vgg16, l2_reg: False, BackPACK: False] DeepOBS: 2.30151, manual: 2.30151
+✓ [cifar10_vgg19, l2_reg: False, BackPACK: False] DeepOBS: 2.30262, manual: 2.30262
+✓ [cifar100_3c3d, l2_reg: False, BackPACK: False] DeepOBS: 4.55693, manual: 4.55693
+✓ [cifar100_allcnnc, l2_reg: False, BackPACK: False] DeepOBS: 4.56741, manual: 4.56741
+✓ [cifar100_vgg16, l2_reg: False, BackPACK: False] DeepOBS: 4.60366, manual: 4.60366
+✓ [cifar100_vgg19, l2_reg: False, BackPACK: False] DeepOBS: 4.60555, manual: 4.60555
+✓ [cifar100_wrn164, l2_reg: False, BackPACK: False] DeepOBS: 4.31506, manual: 4.31506
+✓ [cifar100_wrn404, l2_reg: False, BackPACK: False] DeepOBS: 4.61947, manual: 4.61947
+✓ [fmnist_2c2d, l2_reg: False, BackPACK: False] DeepOBS: 2.32473, manual: 2.32473
+✓ [fmnist_logreg, l2_reg: False, BackPACK: False] DeepOBS: 2.30259, manual: 2.30259
+✓ [fmnist_mlp, l2_reg: False, BackPACK: False] DeepOBS: 2.30591, manual: 2.30591
+✓ [fmnist_vae, l2_reg: False, BackPACK: False] DeepOBS: 145.27640, manual: 145.27640
+✓ [mnist_2c2d, l2_reg: False, BackPACK: False] DeepOBS: 2.35603, manual: 2.35603
+✓ [mnist_logreg, l2_reg: False, BackPACK: False] DeepOBS: 2.30259, manual: 2.30259
+✓ [mnist_mlp, l2_reg: False, BackPACK: False] DeepOBS: 2.29524, manual: 2.29524
+✓ [mnist_vae, l2_reg: False, BackPACK: False] DeepOBS: 179.56845, manual: 179.56845
+❌ [quadratic_deep, l2_reg: False, BackPACK: False] DeepOBS: 5.29617, manual: 4.89908
+✓ [svhn_3c3d, l2_reg: False, BackPACK: False] DeepOBS: 2.21970, manual: 2.21970
+✓ [svhn_wrn164, l2_reg: False, BackPACK: False] DeepOBS: 1.89063, manual: 1.89063
+
+
+❌ [cifar10_3c3d, l2_reg: True, BackPACK: False] DeepOBS: 3.54886, manual: 2.28687
+❌ [cifar10_vgg16, l2_reg: True, BackPACK: False] DeepOBS: 6.05709, manual: 2.30151
+❌ [cifar10_vgg19, l2_reg: True, BackPACK: False] DeepOBS: 6.37784, manual: 2.30262
+❌ [cifar100_3c3d, l2_reg: True, BackPACK: False] DeepOBS: 5.94544, manual: 4.55693
+❌ [cifar100_allcnnc, l2_reg: True, BackPACK: False] DeepOBS: 4.87410, manual: 4.56741
+❌ [cifar100_vgg16, l2_reg: True, BackPACK: False] DeepOBS: 8.40309, manual: 4.60366
+❌ [cifar100_vgg19, l2_reg: True, BackPACK: False] DeepOBS: 8.72502, manual: 4.60555
+❌ [cifar100_wrn164, l2_reg: True, BackPACK: False] DeepOBS: 4.82936, manual: 4.31506
+❌ [cifar100_wrn404, l2_reg: True, BackPACK: False] Raised exception: 'NoneType' object has no attribute 'items'
+✓ [fmnist_2c2d, l2_reg: True, BackPACK: False] DeepOBS: 2.32473, manual: 2.32473
+✓ [fmnist_logreg, l2_reg: True, BackPACK: False] DeepOBS: 2.30259, manual: 2.30259
+✓ [fmnist_mlp, l2_reg: True, BackPACK: False] DeepOBS: 2.30591, manual: 2.30591
+✓ [fmnist_vae, l2_reg: True, BackPACK: False] DeepOBS: 145.27640, manual: 145.27640
+✓ [mnist_2c2d, l2_reg: True, BackPACK: False] DeepOBS: 2.35603, manual: 2.35603
+✓ [mnist_logreg, l2_reg: True, BackPACK: False] DeepOBS: 2.30259, manual: 2.30259
+✓ [mnist_mlp, l2_reg: True, BackPACK: False] DeepOBS: 2.29524, manual: 2.29524
+✓ [mnist_vae, l2_reg: True, BackPACK: False] DeepOBS: 179.56845, manual: 179.56845
+❌ [quadratic_deep, l2_reg: True, BackPACK: False] DeepOBS: 5.29617, manual: 4.89908
+❌ [svhn_3c3d, l2_reg: True, BackPACK: False] DeepOBS: 3.48170, manual: 2.21970
+❌ [svhn_wrn164, l2_reg: True, BackPACK: False] DeepOBS: 2.37303, manual: 1.89063
+
+
+✓ [cifar10_3c3d, l2_reg: False, BackPACK: True] DeepOBS: 2.28687, manual: 2.28687
+✓ [cifar10_vgg16, l2_reg: False, BackPACK: True] DeepOBS: 2.30151, manual: 2.30151
+✓ [cifar10_vgg19, l2_reg: False, BackPACK: True] DeepOBS: 2.30262, manual: 2.30262
+✓ [cifar100_3c3d, l2_reg: False, BackPACK: True] DeepOBS: 4.55693, manual: 4.55693
+✓ [cifar100_allcnnc, l2_reg: False, BackPACK: True] DeepOBS: 4.56741, manual: 4.56741
+✓ [cifar100_vgg16, l2_reg: False, BackPACK: True] DeepOBS: 4.60366, manual: 4.60366
+✓ [cifar100_vgg19, l2_reg: False, BackPACK: True] DeepOBS: 4.60555, manual: 4.60555
+✓ [cifar100_wrn164, l2_reg: False, BackPACK: True] DeepOBS: 4.31506, manual: 4.31506
+✓ [cifar100_wrn404, l2_reg: False, BackPACK: True] DeepOBS: 4.61947, manual: 4.61947
+✓ [fmnist_2c2d, l2_reg: False, BackPACK: True] DeepOBS: 2.32473, manual: 2.32473
+✓ [fmnist_logreg, l2_reg: False, BackPACK: True] DeepOBS: 2.30259, manual: 2.30259
+✓ [fmnist_mlp, l2_reg: False, BackPACK: True] DeepOBS: 2.30591, manual: 2.30591
+❌ [fmnist_vae, l2_reg: False, BackPACK: True] Raised exception: 'tuple' object has no attribute 'size'
+✓ [mnist_2c2d, l2_reg: False, BackPACK: True] DeepOBS: 2.35603, manual: 2.35603
+✓ [mnist_logreg, l2_reg: False, BackPACK: True] DeepOBS: 2.30259, manual: 2.30259
+✓ [mnist_mlp, l2_reg: False, BackPACK: True] DeepOBS: 2.29524, manual: 2.29524
+❌ [mnist_vae, l2_reg: False, BackPACK: True] Raised exception: 'tuple' object has no attribute 'size'
+❌ [quadratic_deep, l2_reg: False, BackPACK: True] DeepOBS: 5.29617, manual: 4.89908
+✓ [svhn_3c3d, l2_reg: False, BackPACK: True] DeepOBS: 2.21970, manual: 2.21970
+✓ [svhn_wrn164, l2_reg: False, BackPACK: True] DeepOBS: 1.89063, manual: 1.89063
+
+
+❌ [cifar10_3c3d, l2_reg: True, BackPACK: True] DeepOBS: 3.54886, manual: 2.28687
+❌ [cifar10_vgg16, l2_reg: True, BackPACK: True] DeepOBS: 6.05709, manual: 2.30151
+❌ [cifar10_vgg19, l2_reg: True, BackPACK: True] DeepOBS: 6.37784, manual: 2.30262
+❌ [cifar100_3c3d, l2_reg: True, BackPACK: True] DeepOBS: 5.94544, manual: 4.55693
+❌ [cifar100_allcnnc, l2_reg: True, BackPACK: True] DeepOBS: 4.87410, manual: 4.56741
+❌ [cifar100_vgg16, l2_reg: True, BackPACK: True] DeepOBS: 8.40309, manual: 4.60366
+❌ [cifar100_vgg19, l2_reg: True, BackPACK: True] DeepOBS: 8.72502, manual: 4.60555
+❌ [cifar100_wrn164, l2_reg: True, BackPACK: True] DeepOBS: 4.82936, manual: 4.31506
+❌ [cifar100_wrn404, l2_reg: True, BackPACK: True] Raised exception: 'NoneType' object has no attribute 'items'
+✓ [fmnist_2c2d, l2_reg: True, BackPACK: True] DeepOBS: 2.32473, manual: 2.32473
+✓ [fmnist_logreg, l2_reg: True, BackPACK: True] DeepOBS: 2.30259, manual: 2.30259
+✓ [fmnist_mlp, l2_reg: True, BackPACK: True] DeepOBS: 2.30591, manual: 2.30591
+❌ [fmnist_vae, l2_reg: True, BackPACK: True] Raised exception: 'tuple' object has no attribute 'size'
+✓ [mnist_2c2d, l2_reg: True, BackPACK: True] DeepOBS: 2.35603, manual: 2.35603
+✓ [mnist_logreg, l2_reg: True, BackPACK: True] DeepOBS: 2.30259, manual: 2.30259
+✓ [mnist_mlp, l2_reg: True, BackPACK: True] DeepOBS: 2.29524, manual: 2.29524
+❌ [mnist_vae, l2_reg: True, BackPACK: True] Raised exception: 'tuple' object has no attribute 'size'
+❌ [quadratic_deep, l2_reg: True, BackPACK: True] DeepOBS: 5.29617, manual: 4.89908
+❌ [svhn_3c3d, l2_reg: True, BackPACK: True] DeepOBS: 3.48170, manual: 2.21970
+❌ [svhn_wrn164, l2_reg: True, BackPACK: True] DeepOBS: 2.37303, manual: 1.89063
+
+
+#+end_example
+Comments: 
+- [ ] *DeepOBS bug?* The forward pass of ~cifar100_wrn404~ does not work with regularization.
+- [X] *Variational auto-encoders* mess with IO storing in [[https://www.backpack.pt][BackPACK]], which is expected.
+- [ ] *Non-deterministic problem*: The forward pass in ~quadrati_deep~ is not deterministic, with or without [[https://www.backpack.pt][BackPACK]]. At least, the losses only differ between manual/DeepOBS forward pass.
+- [X] *Regularized problems* are different from the manual forward pass, as the latter only considers the empirical risk term without regularization. This is expected
+
