@@ -9,10 +9,6 @@ TODO: How to use with regularization.
 
 Fully-supported problems: ~mnist_logreg~, ~fmnist_2c2d~, ~cifar10_3c3d~, ~cifar100_allcnnc~.
 
-TODO: Need to figure out for problems with regularization.
-
-TODO: Fix ~False~ due to wrong command line calls.
-
 ** TODO (make more fine-grained) Overview
 #+BEGIN_SRC 
 SUMMARY
@@ -290,3 +286,41 @@ Run the following to reproduce the results:
 Comments:
 - [X] *BatchNorm unsupported*: The ~cifar100_wrn164~, ~cifar100_wrn404~, ~svhn_wrn164~ problems come with ~BatchNorm~ and can thus not be supported.
 - [ ] *Dropout fails test, but* this is just because the order of the two forward passes is different, which leads to different elements being dropped. In principle, it should be able to support the nets with ~Dropout~, i.e. ~cifar100_vgg16~, ~cifar100_vgg19~, ~cifar10_vgg16~, ~cifar10_vgg19~, ~cifar100_allcnnc~.
+*** Checking individual gradients
+Here is an overview, for which [[https://github.com/fsschneider/DeepOBS][DeepOBS]] testproblems [[https://www.backpack.pt][BackPACK]] correctly computes individual gradients.
+
+To reproduce the results, run
+#+begin_src bash :results output
+  python test/run_test_batch_grad.py
+#+end_src
+
+#+RESULTS:
+#+begin_example
+✓ [cifar10_3c3d, individual gradients] Same? 12/12
+❌ [cifar10_vgg16, individual gradients] Same? 0/32, BatchNorm? False, Dropout? True
+❌ [cifar10_vgg19, individual gradients] Same? 0/38, BatchNorm? False, Dropout? True
+✓ [cifar100_3c3d, individual gradients] Same? 12/12
+❌ [cifar100_allcnnc, individual gradients] Same? 0/18, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg16, individual gradients] Same? 0/32, BatchNorm? False, Dropout? True
+❌ [cifar100_vgg19, individual gradients] Same? 0/38, BatchNorm? False, Dropout? True
+❌ [cifar100_wrn164, individual gradients] Raised exception: 'Parameter' object has no attribute 'grad_batch'
+❌ [cifar100_wrn404, individual gradients] Raised exception: 'Parameter' object has no attribute 'grad_batch'
+✓ [fmnist_2c2d, individual gradients] Same? 8/8
+✓ [fmnist_logreg, individual gradients] Same? 2/2
+✓ [fmnist_mlp, individual gradients] Same? 8/8
+❌ [fmnist_vae, individual gradients] Raised exception: 'function' object has no attribute 'children'
+✓ [mnist_2c2d, individual gradients] Same? 8/8
+✓ [mnist_logreg, individual gradients] Same? 2/2
+✓ [mnist_mlp, individual gradients] Same? 8/8
+❌ [mnist_vae, individual gradients] Raised exception: 'function' object has no attribute 'children'
+✓ [quadratic_deep, individual gradients] Same? 1/1
+✓ [svhn_3c3d, individual gradients] Same? 12/12
+❌ [svhn_wrn164, individual gradients] Raised exception: 'Parameter' object has no attribute 'grad_batch'
+#+end_example
+
+Notes:
+- [ ] Networks with ~Dropout~ do not have a deterministic forward pass. As such, the individual gradients are not identical, but in principle, it [[https://www.backpack.pt][BackPACK]] should still work.
+- [X] Individual gradients are not properly defined for networks with batch normalization. This is expected.
+- [X] Variational autoencoders are not supported in [[https://www.backpack.pt][BackPACK]]. This is expected.
+- [X] For wide ResNets, the [[https://www.backpack.pt][BackPACK]] computation does not seem to work. But, they also come with ~BatchNorm~, and hence individual gradients are not well-defined.
+**** TODO [[https://www.backpack.pt][BackPACK]] is known to work with ResNets. Can we find a popular ResNet without ~BatchNorm~ and integrate it into [[https://github.com/fsschneider/DeepOBS][DeepOBS]]?

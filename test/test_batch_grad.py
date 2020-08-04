@@ -7,6 +7,7 @@ import torch
 from backpack import backpack, extensions
 from deepobs.config import set_data_dir
 from test_forward import forward_pass, set_up_problem, tproblem_cls_from_str
+from test_individual_forward import has_batchnorm, has_dropout
 
 
 def autograd_individual_gradients(X, y, forward_fn, parameters):
@@ -128,10 +129,14 @@ def individual_gradients_correct(tproblem_cls, batch_size, seed=0, verbose=True)
             name = tproblem_cls.__name__
             same_symbol = "✓" if same else "❌"
             print(
-                "{} [{}, individual gradients] Same? {}".format(
-                    same_symbol, name, same_param_wise
+                "{} [{}, individual gradients] Same? {}/{}".format(
+                    same_symbol, name, sum(same_param_wise), len(same_param_wise)
                 )
             )
+            if not same:
+                has_bn = has_batchnorm(tproblem.net)
+                has_do = has_dropout(tproblem.net)
+                print(", BatchNorm? {}, Dropout? {}".format(has_bn, has_do))
 
         return same
 
