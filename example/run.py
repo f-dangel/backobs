@@ -1,7 +1,9 @@
 """Run BackpackRunner on a DeepOBS test problem."""
 
-from runner import BackpackRunner
 from torch.optim import SGD
+
+from deepobs.pytorch.config import set_default_device
+from runner import BackpackRunner
 
 
 def make_backpack_runner_for_sgd(check=True):
@@ -16,8 +18,9 @@ def make_backpack_runner_for_sgd(check=True):
 
 
 if __name__ == "__main__":
-    # from deepobs.pytorch.config import set_default_device
-    # set_default_device("cpu")
+    FORCE_CPU = False
+    if FORCE_CPU:
+        set_default_device("cpu")
 
     print("Running BackPACK runner with SGD:")
     runner = make_backpack_runner_for_sgd(check=False)
