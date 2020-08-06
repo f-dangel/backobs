@@ -1,105 +1,179 @@
 """Custom Runner to track statistics. """
 
+import types
 
-from backpack import extend
-from deepobs.pytorch.testproblems import (cifar10_3c3d, cifar10_vgg16,
-                                          cifar10_vgg19, cifar100_3c3d,
-                                          cifar100_allcnnc, cifar100_vgg16,
-                                          cifar100_vgg19, cifar100_wrn164,
-                                          cifar100_wrn404, fmnist_2c2d,
-                                          fmnist_logreg, fmnist_mlp,
-                                          fmnist_vae, mnist_2c2d, mnist_logreg,
-                                          mnist_mlp, mnist_vae, quadratic_deep,
-                                          svhn_3c3d, svhn_wrn164)
+import torch
+
+from backobs.utils import ALL_PROBLEMS, SUPPORTED_PROBLEMS, has_no_accuracy
+from backpack import extend as backpack_extend
 from deepobs.pytorch.testproblems.testproblem import TestProblem
 
-ALL_PROBLEMS = [
-    cifar10_3c3d,
-    cifar10_vgg16,
-    cifar10_vgg19,
-    cifar100_3c3d,
-    cifar100_allcnnc,
-    cifar100_vgg16,
-    cifar100_vgg19,
-    cifar100_wrn164,
-    cifar100_wrn404,
-    fmnist_2c2d,
-    fmnist_logreg,
-    fmnist_mlp,
-    fmnist_vae,
-    mnist_2c2d,
-    mnist_logreg,
-    mnist_mlp,
-    mnist_vae,
-    quadratic_deep,
-    svhn_3c3d,
-    svhn_wrn164,
-]
 
-SUPPORTED_PROBLEMS = [
-    mnist_logreg,
-    fmnist_2c2d,
-    cifar10_3c3d,
-    cifar100_allcnnc,
-]
-
-
-def integrate_backpack(tproblem, check=True):
+def extend(tproblem: TestProblem, debug=False):
     """Add BackPACK functionality to a DeepOBS test problem.
 
-    Parameters:
-    -----------
-    tproblem : TestProblem instance from deepobs.pytorch
-        The tproblem to be integrated.
-    check: bool (optional)
-        Verify that the tproblem is fully-supported by BackPACK.
-        BackPACK does not fully support all tproblems.
+    Note:
+        Only a subset of the DeepOBS problems can be supported:
+        - The computational graph structure for variational autoencoder problems differs
+        from the assumptions in BackPACK.
+        - For problems with batch normalization, the concept of many BackPACK quantities,
+        such as individual gradients, is not defined.
+        - Natural Language processing problems/RNNs are excluded, as they cannot be handled
+        with BackPACK (yet).
+
+    Args:
+        tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
+        debug (bool): Activate debugging mode of BackPACK's `extend` function.
 
     Returns:
-    --------
-    Extended tproblem.
+        TestProblem: extended testproblem.
     """
+    if not isinstance(tproblem, SUPPORTED_PROBLEMS):
+        raise NotImplementedError(f"Unsupported problem: {tproblem.__class__.__name__}")
+
     original_loss_function_savefield = "_old_loss_function"
 
-    if check:
-        _check_can_be_integrated(tproblem)
-
-    def already_integrated(tproblem):
-        return hasattr(tproblem, original_loss_function_savefield)
-
-    if already_integrated(tproblem):
+    already_integrated = hasattr(tproblem, original_loss_function_savefield)
+    if already_integrated:
         raise RuntimeError("Test problem is already extended")
 
-    def extend_loss_function(tproblem):
-        setattr(tproblem, original_loss_function_savefield, tproblem.loss_function)
+    backpack_extend(tproblem.net, debug=debug)
 
-        def new_loss_function(reduction="mean"):
-            original_loss_function = getattr(tproblem, original_loss_function_savefield)
-            return extend(original_loss_function(reduction=reduction))
+    setattr(tproblem, original_loss_function_savefield, tproblem.loss_function)
 
-        tproblem.loss_function = new_loss_function
+    def new_loss_function(reduction="mean"):
+        """Loss function of original DeepOBS problem, extended by BackPACK.
 
-    extend(tproblem.net)
-    extend_loss_function(tproblem)
+        Args:
+            reduction (str): Reduction of individual losses, 'mean', 'sum' or 'none'.
+
+        Returns:
+            torch.nn.Module: Module used to compute the loss from the network prediction.
+        """
+        original_loss_function = getattr(tproblem, original_loss_function_savefield)
+        return backpack_extend(original_loss_function(reduction=reduction), debug=debug)
+
+    tproblem.loss_function = new_loss_function
 
     return tproblem
 
 
-def _check_can_be_integrated(tproblem):
-    """Check if the DeepOBS problem can be extended with BackPACK."""
-    tproblem_class = tproblem.__class__
+def extend_with_access_to_unreduced_loss(
+    tproblem: TestProblem, savefield="_unreduced_loss", debug=False
+):
+    """Same as `extend`, modifies loss computation to provide access to unreduced loss.
 
-    def check_is_deepobs_problem():
-        if not issubclass(tproblem_class, (TestProblem,)):
-            raise ValueError("Expect TestProblem, got {}".format(tproblem_class))
+    Args:
+        tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
+        savefield (str): Name of attribute through which individual loss can be accessed.
+        debug (bool): Activate debugging mode of BackPACK's `extend` function.
 
-    def check_supported_by_backpack(tproblem):
-        if not isinstance(tproblem, SUPPORTED_PROBLEMS):
-            raise ValueError(
-                "{} currently not supported. Working problems: {}".format(
-                    tproblem_class, SUPPORTED_PROBLEMS
-                )
-            )
+    Returns:
+        TestProblem: Extended DeepOBS testproblem with overwritten forward pass,
+            such that the unreduced loss can be accessed via the mini-batch loss.
+    """
+    tproblem = extend(tproblem, debug=debug)
+    tproblem = _add_access_to_unreduced_loss(tproblem, savefield=savefield)
 
-    check_is_deepobs_problem()
-    check_supported_by_backpack(tproblem)
+    return tproblem
+
+
+def _add_access_to_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss"):
+    """Provide access to unreduced losses when evaluating the reduced loss.
+
+    Overwrites the `get_batch_loss_and_accuracy_func` of a testproblem. The function
+    returned from the latter is a callable which evaluates to a tuple of the mini-batch
+    loss and accuracy. The mini-batch loss will contain an attribute under `savefield`
+    that contains the unreduced loss.
+
+    Note:
+        Must be called before extending the testproblem with BackPACK.
+
+    Args:
+        tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
+        savefield (str): Name of attribute through which individual loss can be accessed.
+
+    Details:
+        - Adding a function to an instance: https://stackoverflow.com/a/8961717
+
+    Returns:
+        TestProblem: DeepOBS testproblem with overwritten forward pass, such that
+            the unreduced loss can be accessed via the mini-batch loss.
+    """
+    original_get_batch_loss_and_accuracy_func_savefield = (
+        "_old_get_batch_loss_and_accuracy_func"
+    )
+
+    setattr(
+        tproblem,
+        original_get_batch_loss_and_accuracy_func_savefield,
+        tproblem.get_batch_loss_and_accuracy_func,
+    )
+
+    def new_get_batch_loss_and_accuracy_func(
+        self, reduction="mean", add_regularization_if_available=True
+    ):
+        """Return callable to evaluate loss and accuracy on the current mini-batch.
+
+        Args:
+            reduction (str): Reduction of individual losses, 'mean', 'sum' or 'none'.
+            add_regularization_if_available (bool): Add regularization to the empirical risk.
+
+        Returns:
+            callable: Function to evaluate loss and accuracy. Loss has an attribute
+                to access the unreduced loss.
+        """
+        inputs, labels = self._get_next_batch()
+        inputs = inputs.to(self._device)
+        labels = labels.to(self._device)
+
+        def forward_func():
+            """Compute loss and accuracy. Provide access to unreduced loss.
+
+            Returns:
+                torch.Tensor: Mini-batch loss with an additional attribute that
+                   contains the unreduced loss.
+                float: Mini-batch accuracy. 0 for regression tasks.
+            """
+            correct = 0.0
+            total = 0.0
+
+            # in evaluation phase is no gradient needed
+            if self.phase in ["train_eval", "test", "valid"]:
+                with torch.no_grad():
+                    outputs = self.net(inputs)
+                    loss = self.loss_function(reduction=reduction)(outputs, labels)
+            else:
+                outputs = self.net(inputs)
+                loss = self.loss_function(reduction=reduction)(outputs, labels)
+
+            if has_no_accuracy(self):
+                accuracy = 0
+            else:
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+                accuracy = correct / total
+
+            if add_regularization_if_available:
+                regularizer_loss = self.get_regularization_loss()
+            else:
+                regularizer_loss = torch.tensor(0.0, device=torch.device(self._device))
+
+            result = loss + regularizer_loss
+
+            # compute and make unreduced loss accessible
+            with torch.no_grad():
+                unreduced_loss = self.loss_function(reduction="none")(outputs, labels)
+                setattr(result, savefield, unreduced_loss)
+
+            return result, accuracy
+
+        return forward_func
+
+    tproblem.get_batch_loss_and_accuracy_func = types.MethodType(
+        new_get_batch_loss_and_accuracy_func, tproblem
+    )
+
+    return tproblem
