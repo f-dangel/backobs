@@ -3,40 +3,41 @@
 
 #+author: F. Dangel
 
-TODO: How to use with regularization.
-
-* How to make [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] use [[https://backpack.readthedocs.io/en/latest/][BackPACK]].
-
-Fully-supported problems: ~mnist_logreg~, ~fmnist_2c2d~, ~cifar10_3c3d~, ~cifar100_allcnnc~.
-
-** TODO (make more fine-grained) Overview
-#+BEGIN_SRC 
-SUMMARY
--------
-PROBLEM             | SUPPORTED
-cifar10_3c3d        | True
-cifar10_vgg16       | True
-cifar10_vgg19       | True
-cifar100_3c3d       | True
-cifar100_allcnnc    | True
-cifar100_vgg16      | True
-cifar100_vgg19      | True
-cifar100_wrn164     | False
-cifar100_wrn404     | False
-fmnist_2c2d         | True
-fmnist_logreg       | True
-fmnist_mlp          | True
-fmnist_vae          | False
-mnist_2c2d          | True
-mnist_logreg        | True
-mnist_mlp           | True
-mnist_vae           | False
-quadratic_deep      | False
-svhn_3c3d           | True
-svhn_wrn164         | False 
+* Combining [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] and [[https://backpack.readthedocs.io/en/latest/][BackPACK]]
+To see which problems are working, run
+#+BEGIN_SRC bash :results output
+  python example/supported.py 
 #+END_SRC
 
+#+RESULTS:
+#+begin_example
+Supported:
+	✔ cifar10_3c3d
+	✔ cifar10_vgg16
+	✔ cifar10_vgg19
+	✔ cifar100_3c3d
+	✔ cifar100_allcnnc
+	✔ cifar100_vgg16
+	✔ cifar100_vgg19
+	✔ fmnist_2c2d
+	✔ fmnist_logreg
+	✔ fmnist_mlp
+	✔ mnist_2c2d
+	✔ mnist_logreg
+	✔ mnist_mlp
+	✔ quadratic_deep
+	✔ svhn_3c3d
+Not supported:
+	❌ cifar100_wrn164
+	❌ cifar100_wrn404
+	❌ fmnist_vae
+	❌ mnist_vae
+	❌ svhn_wrn164
+#+end_example
 
+Unsupported problems include:
+- Variational autoencoder problems (~mnist_vae~, ~fmnist-vae~)
+- Problems with batch normalization (~cifar100_wrn164~, ~cifar100_wrn404~, ~svhn_wrn164~)
 
 ** Preliminaries 
 *** Set up a virtual environment

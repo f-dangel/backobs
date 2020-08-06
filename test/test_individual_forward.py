@@ -4,6 +4,7 @@ Background: Check structure of loss to be sum of individual losses.
 """
 import torch
 
+from backobs.utils import has_batchnorm, has_dropout
 from deepobs.config import set_data_dir
 from test_forward import forward_pass, set_up_problem, tproblem_cls_from_str
 
@@ -31,26 +32,6 @@ def manual_forward_pass_loop(tproblem):
 
     loss = torch.tensor(losses).mean()
     return loss
-
-
-def has_batchnorm(model):
-    batchnorm_cls = (
-        torch.nn.BatchNorm1d,
-        torch.nn.BatchNorm2d,
-        torch.nn.BatchNorm3d,
-    )
-    for module in model.children():
-        if isinstance(module, batchnorm_cls):
-            return True
-    return False
-
-
-def has_dropout(model):
-    dropout_cls = (torch.nn.Dropout,)
-    for module in model.children():
-        if isinstance(module, dropout_cls):
-            return True
-    return False
 
 
 def manual_forward_pass_loop_correct(

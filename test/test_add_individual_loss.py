@@ -2,93 +2,12 @@
 Reduced and unreduced forward pass using only one forward throught the model.
 """
 
-import types
-
-import torch
-
-from backobs.integration import integrate_backpack
+from backobs.integration import integrate_individual_loss
 from backpack import backpack, extensions
 from deepobs.config import set_data_dir
 from deepobs.pytorch.testproblems import (fmnist_2c2d, mnist_logreg,
                                           quadratic_deep)
-from test_forward import forward_pass, set_deepobs_seed, set_up_problem
-
-
-def has_no_accuracy(tproblem):
-    """Return whether accuracy is defined for a DeepOBS testproblem task."""
-    regression_tproblems = (quadratic_deep,)
-    return isinstance(tproblem, regression_tproblems)
-
-
-def hotfix_get_batch_loss_and_accuracy_func(
-    self, reduction="mean", add_regularization_if_available=True
-):
-
-    inputs, labels = self._get_next_batch()
-    inputs = inputs.to(self._device)
-    labels = labels.to(self._device)
-
-    def forward_func():
-        """Attach individual losses in `._deepobs_unreduced_loss`."""
-        savefield = "_deepobs_unreduced_loss"
-
-        correct = 0.0
-        total = 0.0
-
-        # in evaluation phase is no gradient needed
-        if self.phase in ["train_eval", "test", "valid"]:
-            with torch.no_grad():
-                outputs = self.net(inputs)
-                loss = self.loss_function(reduction=reduction)(outputs, labels)
-        else:
-            outputs = self.net(inputs)
-            loss = self.loss_function(reduction=reduction)(outputs, labels)
-
-        # hotfix: compute unreduced loss
-        with torch.no_grad():
-            unreduced = self.loss_function(reduction="none")(outputs, labels)
-
-        if has_no_accuracy(self):
-            accuracy = 0
-        else:
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-            accuracy = correct / total
-
-        if add_regularization_if_available:
-            regularizer_loss = self.get_regularization_loss()
-        else:
-            regularizer_loss = torch.tensor(0.0, device=torch.device(self._device))
-
-        result = loss + regularizer_loss
-
-        # hotfix: append unreduced loss
-        setattr(result, savefield, unreduced)
-
-        return result, accuracy
-
-    return forward_func
-
-
-def integrate_individual_loss(tproblem):
-    """Modify loss evaluation such that individual losses are attached.
-
-    Details on adding a function to an instance:
-    https://stackoverflow.com/questions/972/adding-a-method-to-an-existing-object-instance
-
-    Note:
-        If combined with BackPACK, the testproblem must have been extended before.
-    """
-    tproblem._old_get_batch_loss_and_accuracy_func = (
-        tproblem.get_batch_loss_and_accuracy_func
-    )
-    tproblem.get_batch_loss_and_accuracy_func = types.MethodType(
-        hotfix_get_batch_loss_and_accuracy_func, tproblem
-    )
-    return tproblem
-
+from test_forward import set_up_problem
 
 if __name__ == "__main__":
     use_backpack = False

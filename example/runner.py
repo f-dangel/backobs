@@ -1,22 +1,24 @@
-from backobs.integration import integrate_backpack
-from backpack import backpack, extensions
-from deepobs.pytorch.runners.runner import PTRunner
+import warnings
+
 import numpy
+import torch
+
+from backobs.integration import extend
+from backpack import backpack
+from deepobs.pytorch.runners.runner import PTRunner
 
 
 class BackpackRunner(PTRunner):
     """Runner that supports BackPACK."""
 
-    def __init__(self, optimizer_class, hyperparameter_names, check_compatible=True):
+    def __init__(self, optimizer_class, hyperparameter_names, extensions_fn):
         """
-        Parameters:
-        -----------
-        check_compatible : bool
-            Check if a testproblem is fully supported by BackPACK and raise
-            an exception if not.
+        Args:
+            extensions_fn (callable): Function that returns a list of BackPACK
+                extensions that should computed during the backward pass.
         """
         super().__init__(optimizer_class, hyperparameter_names)
-        self._check_compatible = check_compatible
+        self._extensions_fn = extensions_fn
 
     def training(
         self,
@@ -28,8 +30,8 @@ class BackpackRunner(PTRunner):
         tb_log,
         tb_log_dir,
     ):
-        # [backobs] Integrate BackPACK. Do not modify!
-        tproblem = integrate_backpack(tproblem, check=self._check_compatible)
+        # [backobs] Integrate BackPACK
+        tproblem = extend(tproblem)
 
         opt = self._optimizer_class(tproblem.net.parameters(), **hyperparams)
 
@@ -85,37 +87,29 @@ class BackpackRunner(PTRunner):
                     batch_loss, _ = tproblem.get_batch_loss_and_accuracy()
 
                     # [backobs] Use BackPACK in backward pass
-                    with backpack(
-                        # [backobs] Choose any BackPACK extension you want
-                        # extensions.BatchGrad(),
-                        extensions.BatchL2Grad(),
-                        extensions.DiagGGNMC(),
-                    ):
+                    extensions = self._extensions_fn()
+                    with backpack(*extensions):
                         batch_loss.backward()
 
-                        # [backobs] This block is for demonstration and should be removed
-                        time_to_print = batch_count == 0
+                    # [backobs] This block is for demonstration and can be removed
+                    for ext in extensions:
+                        print(f"[backobs] Extension: {ext.__class__.__name__}")
+                        for num, param in enumerate(tproblem.net.parameters()):
 
-                        if time_to_print:
-                            print("[BackPACK] Individual gradient l2 norm shape")
-                            for num, param in enumerate(tproblem.net.parameters()):
-                                print(
-                                    "\tParameter {}: {}".format(
-                                        num, param.batch_l2.shape
-                                    )
-                                )
-                            print("[BackPACK] MC-sampled GGN diagonal shape")
-                            for num, param in enumerate(tproblem.net.parameters()):
-                                print(
-                                    "\tParameter {}: {}".format(
-                                        num, param.diag_ggn_mc.shape
-                                    )
-                                )
+                            quantity = getattr(param, ext.savefield)
+                            if isinstance(quantity, list):
+                                quantity_print = [tuple(q.shape) for q in quantity]
+                            elif isinstance(quantity, torch.Tensor):
+                                quantity_print = tuple(quantity.shape)
 
-                        # [backobs] This block is for demonstration and should be removed
-                        time_to_quit = batch_count == 5
-                        if time_to_quit:
-                            raise StopIteration
+                            print(f"\tParameter {num}: Shape {quantity_print}")
+
+                    # [backobs] This block is for demonstration and can be removed
+                    if batch_count == 3:
+                        warnings.warn(
+                            f"[backobs] This demo performs only 3 steps per epoch."
+                        )
+                        raise StopIteration
 
                     opt.step()
 

@@ -10,7 +10,7 @@ import random
 import numpy
 import torch
 
-from backobs.integration import ALL_PROBLEMS, integrate_backpack
+from backobs.integration import ALL_PROBLEMS, extend
 from deepobs.config import set_data_dir
 
 
@@ -29,7 +29,7 @@ def set_up_problem(tproblem_cls, batch_size, seed=0, extend=False):
     with contextlib.redirect_stdout(None):
         tproblem.set_up()
     if extend:
-        tproblem = integrate_backpack(tproblem, check=False)
+        tproblem = extend(tproblem, check=False)
     tproblem.train_init_op()
 
     return tproblem
