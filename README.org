@@ -324,3 +324,11 @@ Notes:
 - [X] Variational autoencoders are not supported in [[https://www.backpack.pt][BackPACK]]. This is expected.
 - [X] For wide ResNets, the [[https://www.backpack.pt][BackPACK]] computation does not seem to work. But, they also come with ~BatchNorm~, and hence individual gradients are not well-defined.
 **** TODO [[https://www.backpack.pt][BackPACK]] is known to work with ResNets. Can we find a popular ResNet without ~BatchNorm~ and integrate it into [[https://github.com/fsschneider/DeepOBS][DeepOBS]]?
+** Extracting the model forward pass
+- Goal :: Evaluating the loss with ~reduction="mean"~ should at the same time give access to the unreduced (individual) losses.
+- How  :: The forward pass usually consists of two stages:
+  1. Forward pass through the network: ~output = model(X)~
+  2. Evaluation of loss: ~loss = loss_function(output, y)~
+  
+  The idea is to perform the forward pass through the model only once, and compute the second step with different reductions.
+- Backround  :: For the cockpit, we need both the reduced and unreduced loss. But we cannot manually reduce the individual losses, as this breaks the computation of second-order extensions in [[https://www.backpack.pt][BackPACK]].

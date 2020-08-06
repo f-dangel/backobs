@@ -1,5 +1,6 @@
 """Custom Runner to track statistics. """
 
+
 from backpack import extend
 from deepobs.pytorch.testproblems import (cifar10_3c3d, cifar10_vgg16,
                                           cifar10_vgg19, cifar100_3c3d,
@@ -43,53 +44,62 @@ SUPPORTED_PROBLEMS = [
 ]
 
 
-def integrate_backpack(testproblem, check=True):
+def integrate_backpack(tproblem, check=True):
     """Add BackPACK functionality to a DeepOBS test problem.
 
     Parameters:
     -----------
-    testproblem : TestProblem instance from deepobs.pytorch
-        The testproblem to be integrated.
+    tproblem : TestProblem instance from deepobs.pytorch
+        The tproblem to be integrated.
     check: bool (optional)
-        Verify that the testproblem is fully-supported by BackPACK.
-        BackPACK does not fully support all testproblems.
+        Verify that the tproblem is fully-supported by BackPACK.
+        BackPACK does not fully support all tproblems.
 
     Returns:
     --------
-    Extended testproblem.
+    Extended tproblem.
     """
+    original_loss_function_savefield = "_old_loss_function"
+
     if check:
-        _check_can_be_integrated(testproblem)
+        _check_can_be_integrated(tproblem)
 
-    def extend_loss_func(testproblem):
-        testproblem._old_loss = testproblem.loss_function
+    def already_integrated(tproblem):
+        return hasattr(tproblem, original_loss_function_savefield)
 
-        def new_lossfunc(reduction="mean"):
-            return extend(testproblem._old_loss(reduction=reduction))
+    if already_integrated(tproblem):
+        raise RuntimeError("Test problem is already extended")
 
-        testproblem.loss_function = new_lossfunc
+    def extend_loss_function(tproblem):
+        setattr(tproblem, original_loss_function_savefield, tproblem.loss_function)
 
-    extend(testproblem.net)
-    extend_loss_func(testproblem)
+        def new_loss_function(reduction="mean"):
+            original_loss_function = getattr(tproblem, original_loss_function_savefield)
+            return extend(original_loss_function(reduction=reduction))
 
-    return testproblem
+        tproblem.loss_function = new_loss_function
+
+    extend(tproblem.net)
+    extend_loss_function(tproblem)
+
+    return tproblem
 
 
-def _check_can_be_integrated(testproblem):
+def _check_can_be_integrated(tproblem):
     """Check if the DeepOBS problem can be extended with BackPACK."""
-    testproblem_class = testproblem.__class__
+    tproblem_class = tproblem.__class__
 
     def check_is_deepobs_problem():
-        if not issubclass(testproblem_class, (TestProblem,)):
-            raise ValueError("Expect TestProblem, got {}".format(testproblem_class))
+        if not issubclass(tproblem_class, (TestProblem,)):
+            raise ValueError("Expect TestProblem, got {}".format(tproblem_class))
 
-    def check_supported_by_backpack(testproblem):
-        if not isinstance(testproblem, SUPPORTED_PROBLEMS):
+    def check_supported_by_backpack(tproblem):
+        if not isinstance(tproblem, SUPPORTED_PROBLEMS):
             raise ValueError(
                 "{} currently not supported. Working problems: {}".format(
-                    testproblem_class, SUPPORTED_PROBLEMS
+                    tproblem_class, SUPPORTED_PROBLEMS
                 )
             )
 
     check_is_deepobs_problem()
-    check_supported_by_backpack(testproblem)
+    check_supported_by_backpack(tproblem)
