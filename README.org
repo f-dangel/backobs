@@ -4,7 +4,7 @@
 #+author: F. Dangel
 
 * Combining [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] and [[https://backpack.readthedocs.io/en/latest/][BackPACK]]
-To see which problems are working, run
+For an overview about the supported problems, run
 #+BEGIN_SRC bash :results output
   python example/supported.py 
 #+END_SRC
@@ -39,6 +39,82 @@ Unsupported problems include:
 - Variational autoencoder problems (~mnist_vae~, ~fmnist-vae~)
 - Problems with batch normalization (~cifar100_wrn164~, ~cifar100_wrn404~, ~svhn_wrn164~)
 
+** Basic examples
+- How to extend a testproblem in [[https://github.com/fsschneider/DeepOBS][DeepOBS]] with [[https://www.backpack.pt][BackPACK]] ([[file:./example/extend.py][file]]):
+  #+BEGIN_SRC bash :results output
+    python example/extend.py
+  #+END_SRC
+
+  #+RESULTS:
+#+begin_example
+dense.weight
+	.grad.shape:              torch.Size([10, 784])
+	.grad_batch.shape:        torch.Size([128, 10, 784])
+	.variance.shape:          torch.Size([10, 784])
+	.sum_grad_squared.shape:  torch.Size([10, 784])
+	.batch_l2.shape:          torch.Size([128])
+	.diag_ggn_mc.shape:       torch.Size([10, 784])
+	.diag_ggn_exact.shape:    torch.Size([10, 784])
+	.diag_h.shape:            torch.Size([10, 784])
+	.kfac (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+	.kflr (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+	.kfra (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+dense.bias
+	.grad.shape:              torch.Size([10])
+	.grad_batch.shape:        torch.Size([128, 10])
+	.variance.shape:          torch.Size([10])
+	.sum_grad_squared.shape:  torch.Size([10])
+	.batch_l2.shape:          torch.Size([128])
+	.diag_ggn_mc.shape:       torch.Size([10])
+	.diag_ggn_exact.shape:    torch.Size([10])
+	.diag_h.shape:            torch.Size([10])
+	.kfac (shapes):           [torch.Size([10, 10])]
+	.kflr (shapes):           [torch.Size([10, 10])]
+	.kfra (shapes):           [torch.Size([10, 10])]
+#+end_example
+- How to extend a testproblem with [[https://www.backpack.pt][BackPACK]] and get access to the unreduced loss ([[file:./example/extend_with_access_unreduced_loss.py][here]]):
+  #+BEGIN_SRC bash :results output
+    python example/extend_with_access_unreduced_loss.py
+  #+END_SRC
+
+  #+RESULTS:
+  #+begin_example
+  Individual loss shape:    torch.Size([128])
+  Mini-batch loss:          tensor(2.3026, device='cuda:0', grad_fn=<AddBackward0>)
+  Averaged individual loss: tensor(2.3026, device='cuda:0')
+  dense.weight
+    .grad.shape:              torch.Size([10, 784])
+    .grad_batch.shape:        torch.Size([128, 10, 784])
+    .variance.shape:          torch.Size([10, 784])
+    .sum_grad_squared.shape:  torch.Size([10, 784])
+    .batch_l2.shape:          torch.Size([128])
+    .diag_ggn_mc.shape:       torch.Size([10, 784])
+    .diag_ggn_exact.shape:    torch.Size([10, 784])
+    .diag_h.shape:            torch.Size([10, 784])
+    .kfac (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+    .kflr (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+    .kfra (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+  dense.bias
+    .grad.shape:              torch.Size([10])
+    .grad_batch.shape:        torch.Size([128, 10])
+    .variance.shape:          torch.Size([10])
+    .sum_grad_squared.shape:  torch.Size([10])
+    .batch_l2.shape:          torch.Size([128])
+    .diag_ggn_mc.shape:       torch.Size([10])
+    .diag_ggn_exact.shape:    torch.Size([10])
+    .diag_h.shape:            torch.Size([10])
+    .kfac (shapes):           [torch.Size([10, 10])]
+    .kflr (shapes):           [torch.Size([10, 10])]
+    .kfra (shapes):           [torch.Size([10, 10])]
+  #+end_example
+** Important
+- ℓ₂ regularization is not supported.
+
+** Installation
+#+BEGIN_SRC bash
+pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
+#+END_SRC
+* Details and debug info (TODO, ignore everything below)
 ** Preliminaries 
 *** Set up a virtual environment
 **** Anaconda
