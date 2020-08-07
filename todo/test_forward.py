@@ -10,7 +10,7 @@ import random
 import numpy
 import torch
 
-from backobs.integration import ALL_PROBLEMS, extend
+from backobs.integration import ALL, extend
 from deepobs.config import set_data_dir
 
 
@@ -106,7 +106,7 @@ def manual_forward_pass_correct(
 
 
 def tproblem_cls_from_str(tproblem_str):
-    for tproblem_cls in ALL_PROBLEMS:
+    for tproblem_cls in ALL:
         if tproblem_cls.__name__ == tproblem_str:
             return tproblem_cls
 

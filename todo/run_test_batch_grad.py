@@ -3,7 +3,7 @@
 import os
 import subprocess
 
-from backobs.integration import ALL_PROBLEMS
+from backobs.integration import ALL
 
 if __name__ == "__main__":
     HERE = os.path.abspath(__file__)
@@ -13,7 +13,7 @@ if __name__ == "__main__":
     verbose = True
     seed = 0
 
-    for tproblem_cls in ALL_PROBLEMS:
+    for tproblem_cls in ALL:
         tproblem_cls = tproblem_cls.__name__
         cmd = ["python"]
         cmd.append(SCRIPT)

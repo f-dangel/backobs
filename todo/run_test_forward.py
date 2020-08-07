@@ -9,25 +9,19 @@ as the test problems are not properly freed.
 import os
 import subprocess
 
-from backobs.integration import ALL_PROBLEMS
+from backobs.integration import ALL
 
 if __name__ == "__main__":
     HERE = os.path.abspath(__file__)
-    SCRIPT = os.path.join(os.path.dirname(HERE), "test_individual_forward.py")
+    SCRIPT = os.path.join(os.path.dirname(HERE), "test_forward.py")
 
     batch_size = 3
     verbose = True
     seed = 0
 
-    for extend in [
-        False,
-        True,
-    ]:
-        for add_regularization_if_available in [
-            False,
-            True,
-        ]:
-            for tproblem_cls in ALL_PROBLEMS:
+    for extend in [False, True]:
+        for add_regularization_if_available in [False, True]:
+            for tproblem_cls in ALL:
 
                 tproblem_cls = tproblem_cls.__name__
                 cmd = ["python"]
