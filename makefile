@@ -10,6 +10,7 @@ help:
 test:
 	@python example/supported.py
 	@python example/extend.py
+	@python example/extend_with_acces_unreduced_loss.py
 
 	@echo "BackPACK runner with SGD on mnist_logreg"
 	@python example/run.py mnist_logreg
