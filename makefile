@@ -9,6 +9,7 @@ help:
 
 test:
 	@python example/supported.py
+	@python example/extend.py
 
 	@echo "BackPACK runner with SGD on mnist_logreg"
 	@python example/run.py mnist_logreg
