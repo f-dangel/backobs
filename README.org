@@ -39,6 +39,10 @@ Unsupported problems include:
 - Variational autoencoder problems (~mnist_vae~, ~fmnist-vae~)
 - Problems with batch normalization (~cifar100_wrn164~, ~cifar100_wrn404~, ~svhn_wrn164~)
 
+** Installation
+#+BEGIN_SRC bash
+pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
+#+END_SRC
 ** Basic examples
 - How to extend a testproblem in [[https://github.com/fsschneider/DeepOBS][DeepOBS]] with [[https://www.backpack.pt][BackPACK]] ([[file:./example/extend.py][file]]):
   #+BEGIN_SRC bash :results output
@@ -107,13 +111,120 @@ dense.bias
     .kflr (shapes):           [torch.Size([10, 10])]
     .kfra (shapes):           [torch.Size([10, 10])]
   #+end_example
-** Important
-- ℓ₂ regularization is not supported.
+- A [[https://github.com/fsschneider/DeepOBS][DeepOBS]] testproblem runner for SGD, extended with [[https://www.backpack.pt][BackPACK]] functionality ([[file:./example/runner.py][here]]):
+  #+BEGIN_SRC bash :results output
+    python example/run.py mnist_logreg --lr 0.1
+  #+END_SRC
 
-** Installation
-#+BEGIN_SRC bash
-pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
-#+END_SRC
+  #+RESULTS:
+  #+begin_example
+  ,********************************
+  Evaluating after 0 of 1 epochs...
+  TRAIN: loss 2.30259, acc 0.104610
+  VALID: loss 2.30259, acc 0.100510
+  TEST: loss 2.30259, acc 0.098010
+  ,********************************
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 10, 784)
+    Parameter 1: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 10, 784)
+    Parameter 1: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 10, 784)
+    Parameter 1: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 10, 784)
+    Parameter 1: Shape (3, 10)
+  ,********************************
+  Evaluating after 1 of 1 epochs...
+  TRAIN: loss 2.83062, acc 0.176418
+  VALID: loss 2.81457, acc 0.180918
+  TEST: loss 2.84024, acc 0.178218
+  ,********************************
+  #+end_example
+
+** Important
+- ℓ₂ regularization is *not supported*:
+  #+BEGIN_SRC bash :results output
+    # ℓ₂ not supported: this will crash!
+    # python example/run.py cifar10_3c3d --lr 0.1
+
+    # ℓ₂ disabled: works
+    python example/run.py cifar10_3c3d --lr 0.1 --l2_reg 0.0
+  #+END_SRC
+
+  #+RESULTS:
+  #+begin_example
+  Files already downloaded and verified
+  Files already downloaded and verified
+  Files already downloaded and verified
+  ,********************************
+  Evaluating after 0 of 1 epochs...
+  TRAIN: loss 2.32498, acc 0.101810
+  VALID: loss 2.32938, acc 0.096710
+  TEST: loss 2.32596, acc 0.100110
+  ,********************************
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 64, 3, 5, 5)
+    Parameter 1: Shape (3, 64)
+    Parameter 2: Shape (3, 96, 64, 3, 3)
+    Parameter 3: Shape (3, 96)
+    Parameter 4: Shape (3, 128, 96, 3, 3)
+    Parameter 5: Shape (3, 128)
+    Parameter 6: Shape (3, 512, 1152)
+    Parameter 7: Shape (3, 512)
+    Parameter 8: Shape (3, 256, 512)
+    Parameter 9: Shape (3, 256)
+    Parameter 10: Shape (3, 10, 256)
+    Parameter 11: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 64, 3, 5, 5)
+    Parameter 1: Shape (3, 64)
+    Parameter 2: Shape (3, 96, 64, 3, 3)
+    Parameter 3: Shape (3, 96)
+    Parameter 4: Shape (3, 128, 96, 3, 3)
+    Parameter 5: Shape (3, 128)
+    Parameter 6: Shape (3, 512, 1152)
+    Parameter 7: Shape (3, 512)
+    Parameter 8: Shape (3, 256, 512)
+    Parameter 9: Shape (3, 256)
+    Parameter 10: Shape (3, 10, 256)
+    Parameter 11: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 64, 3, 5, 5)
+    Parameter 1: Shape (3, 64)
+    Parameter 2: Shape (3, 96, 64, 3, 3)
+    Parameter 3: Shape (3, 96)
+    Parameter 4: Shape (3, 128, 96, 3, 3)
+    Parameter 5: Shape (3, 128)
+    Parameter 6: Shape (3, 512, 1152)
+    Parameter 7: Shape (3, 512)
+    Parameter 8: Shape (3, 256, 512)
+    Parameter 9: Shape (3, 256)
+    Parameter 10: Shape (3, 10, 256)
+    Parameter 11: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 64, 3, 5, 5)
+    Parameter 1: Shape (3, 64)
+    Parameter 2: Shape (3, 96, 64, 3, 3)
+    Parameter 3: Shape (3, 96)
+    Parameter 4: Shape (3, 128, 96, 3, 3)
+    Parameter 5: Shape (3, 128)
+    Parameter 6: Shape (3, 512, 1152)
+    Parameter 7: Shape (3, 512)
+    Parameter 8: Shape (3, 256, 512)
+    Parameter 9: Shape (3, 256)
+    Parameter 10: Shape (3, 10, 256)
+    Parameter 11: Shape (3, 10)
+  ,********************************
+  Evaluating after 1 of 1 epochs...
+  TRAIN: loss 2.35165, acc 0.100910
+  VALID: loss 2.34386, acc 0.101110
+  TEST: loss 2.34491, acc 0.101110
+  ,********************************
+  #+end_example
+
 * Details and debug info (TODO, ignore everything below)
 ** Preliminaries 
 *** Set up a virtual environment
