@@ -1,5 +1,5 @@
 .PHONY: help
-.PHONY: test
+.PHONY: test, test-test, test-example
 
 .DEFAULT: help
 
@@ -8,9 +8,13 @@ help:
 	@echo "        Run integration tests"
 
 test:
+	@make test-example
+	@make test-test
+
+test-example:
 	@python example/supported.py
 	@python example/extend.py
-	@python example/extend_with_acces_unreduced_loss.py
+	@python example/extend_with_access_unreduced_loss.py
 
 	@echo "BackPACK runner with SGD on mnist_logreg"
 	@python example/run.py mnist_logreg
@@ -24,4 +28,5 @@ test:
 	@echo "BackPACK runner with SGD on cifar100_allcnnc"
 	@python example/run.py cifar100_allcnnc --l2_reg 0.0
 
-	@pytest -vx --cov=backobs .
+test-test:
+	@pytest -vx --cov=backobs test
