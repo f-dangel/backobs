@@ -3,3 +3,6 @@
 -e git://github.com/fsschneider/DeepOBS.git@develop#egg=deepobs
 # backpack-for-pytorch
 # deepobs
+
+pytest
+pytest-cov

@@ -2,7 +2,7 @@
 
 from torch.optim import SGD
 
-from backobs.utils import SUPPORTED_PROBLEMS
+from backobs.utils import SUPPORTED
 from backpack import extensions
 from deepobs.config import set_data_dir
 from deepobs.pytorch.config import set_default_device

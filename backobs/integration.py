@@ -4,7 +4,7 @@ import types
 
 import torch
 
-from backobs.utils import ALL_PROBLEMS, SUPPORTED_PROBLEMS, has_no_accuracy
+from backobs.utils import ALL, SUPPORTED, has_no_accuracy
 from backpack import extend as backpack_extend
 from deepobs.pytorch.testproblems.testproblem import TestProblem
 
@@ -28,8 +28,12 @@ def extend(tproblem: TestProblem, debug=False):
     Returns:
         TestProblem: extended testproblem.
     """
-    if not isinstance(tproblem, SUPPORTED_PROBLEMS):
+    if not isinstance(tproblem, SUPPORTED):
         raise NotImplementedError(f"Unsupported problem: {tproblem.__class__.__name__}")
+    if not (tproblem._l2_reg is None or tproblem._l2_reg == 0.0):
+        raise NotImplementedError(
+            f"No support for ℓ₂ regularization (got l2_reg={tproblem._l2_reg})"
+        )
 
     original_loss_function_savefield = "_old_loss_function"
 
@@ -58,7 +62,7 @@ def extend(tproblem: TestProblem, debug=False):
     return tproblem
 
 
-def extend_with_access_to_unreduced_loss(
+def extend_with_access_unreduced_loss(
     tproblem: TestProblem, savefield="_unreduced_loss", debug=False
 ):
     """Same as `extend`, modifies loss computation to provide access to unreduced loss.
@@ -73,12 +77,12 @@ def extend_with_access_to_unreduced_loss(
             such that the unreduced loss can be accessed via the mini-batch loss.
     """
     tproblem = extend(tproblem, debug=debug)
-    tproblem = _add_access_to_unreduced_loss(tproblem, savefield=savefield)
+    tproblem = _add_access_unreduced_loss(tproblem, savefield=savefield)
 
     return tproblem
 
 
-def _add_access_to_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss"):
+def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss"):
     """Provide access to unreduced losses when evaluating the reduced loss.
 
     Overwrites the `get_batch_loss_and_accuracy_func` of a testproblem. The function
@@ -148,7 +152,7 @@ def _add_access_to_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_l
                 loss = self.loss_function(reduction=reduction)(outputs, labels)
 
             if has_no_accuracy(self):
-                accuracy = 0
+                accuracy = 0.0
             else:
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
