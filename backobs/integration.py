@@ -20,6 +20,7 @@ def extend(tproblem: TestProblem, debug=False):
         such as individual gradients, is not defined.
         - Natural Language processing problems/RNNs are excluded, as they cannot be handled
         with BackPACK (yet).
+        - ℓ₂ regularization is not supported.
 
     Args:
         tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
