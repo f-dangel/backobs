@@ -8,23 +8,24 @@ from deepobs.config import set_data_dir
 from deepobs.pytorch.config import set_default_device
 from runner import BackpackRunner
 
-if __name__ == "__main__":
-    FORCE_CPU = False
-    if FORCE_CPU:
-        set_default_device("cpu")
+FORCE_CPU = False
+if FORCE_CPU:
+    set_default_device("cpu")
 
-    set_data_dir("~/tmp/data_deepobs")
+set_data_dir("~/tmp/data_deepobs")
 
-    def extensions_fn():
-        return [
-            extensions.BatchGrad(),
-        ]
 
-    optimizer_class_sgd = SGD
-    hyperparams_sgd = {
-        "lr": {"type": float, "default": 0.1,},
-        "momentum": {"type": float, "default": 0.0,},
-    }
+def extensions_fn():
+    return [
+        extensions.BatchGrad(),
+    ]
 
-    runner = BackpackRunner(optimizer_class_sgd, hyperparams_sgd, extensions_fn)
-    runner.run(num_epochs=1, batch_size=3)
+
+optimizer_class_sgd = SGD
+hyperparams_sgd = {
+    "lr": {"type": float, "default": 0.1,},
+    "momentum": {"type": float, "default": 0.0,},
+}
+
+runner = BackpackRunner(optimizer_class_sgd, hyperparams_sgd, extensions_fn)
+runner.run(num_epochs=1, batch_size=3)
