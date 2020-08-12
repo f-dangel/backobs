@@ -1,5 +1,6 @@
 """Custom Runner to track statistics. """
 
+import contextlib
 import types
 
 import torch
@@ -143,15 +144,13 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
             correct = 0.0
             total = 0.0
 
-            # in evaluation phase is no gradient needed
+            # evaluation phases don't require gradients
             if self.phase in ["train_eval", "test", "valid"]:
-                with torch.no_grad():
-                    outputs = self.net(inputs)
-                    loss = self.loss_function(reduction=reduction)(outputs, labels)
-                    unreduced_loss = self.loss_function(reduction="none")(
-                        outputs, labels
-                    )
+                grad_ctx = torch.no_grad
             else:
+                grad_ctx = contextlib.nullcontext
+
+            with grad_ctx():
                 outputs = self.net(inputs)
                 loss = self.loss_function(reduction=reduction)(outputs, labels)
                 unreduced_loss = self.loss_function(reduction="none")(outputs, labels)
