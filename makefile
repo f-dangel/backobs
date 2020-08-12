@@ -1,4 +1,4 @@
-.PHONY: help test test-test test-example
+.PHONY: help test test-test test-example test-lightweight
 
 .DEFAULT: help
 
@@ -29,3 +29,6 @@ test-example:
 
 test-test:
 	@pytest -vx --cov=backobs test
+
+test-lightweight:
+	@pytest -vx -k mnist --cov=backobs test
