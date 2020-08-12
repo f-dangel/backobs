@@ -1,5 +1,4 @@
-.PHONY: help
-.PHONY: test, test-test, test-example
+.PHONY: help test test-test test-example
 
 .DEFAULT: help
 
