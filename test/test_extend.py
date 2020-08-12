@@ -5,6 +5,7 @@ from test.utils import check_sizes_and_values, set_up_problem
 import pytest
 import torch
 
+from backobs import extend as backobs_extend
 from backobs.utils import REGULARIZED, SUPPORTED, UNSUPPORTED
 from backpack import backpack
 from deepobs.config import set_data_dir
@@ -43,6 +44,19 @@ def test_no_l2_reg(tproblem_cls, batch_size=3):
         set_up_problem(
             tproblem_cls, batch_size=batch_size, force_no_l2_reg=False, extend=True
         )
+
+
+@pytest.mark.parametrize("tproblem_cls", SUPPORTED, ids=[p.__name__ for p in SUPPORTED])
+def test_already_extended(tproblem_cls, batch_size=3):
+    """Extending an already extended test problem is not supported.
+
+    Args:
+        tproblem (TestProblem): DeepOBS test problem class.
+    """
+    tproblem = set_up_problem(tproblem_cls, batch_size=batch_size, extend=True)
+
+    with pytest.raises(ValueError):
+        tproblem = backobs_extend(tproblem)
 
 
 @pytest.mark.parametrize("tproblem_cls", SUPPORTED, ids=[p.__name__ for p in SUPPORTED])

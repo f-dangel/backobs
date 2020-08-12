@@ -39,9 +39,9 @@ def extend(tproblem: TestProblem, debug=False):
 
     original_loss_function_savefield = "_old_loss_function"
 
-    already_integrated = hasattr(tproblem, original_loss_function_savefield)
-    if already_integrated:
-        raise RuntimeError("Test problem is already extended")
+    already_extended = hasattr(tproblem, original_loss_function_savefield)
+    if already_extended:
+        raise ValueError("Test problem is already extended")
 
     backpack_extend(tproblem.net, debug=debug)
 
