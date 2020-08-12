@@ -36,6 +36,9 @@ def set_up_problem(
     tproblem.set_up()
     tproblem.train_init_op()
 
+    if unreduced_loss and not extend:
+        raise ValueError("To use unreduced_loss,  enable the extend option.")
+
     if extend:
         if unreduced_loss:
             backobs_extend_with_access_unreduced_loss(tproblem)
