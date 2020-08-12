@@ -148,9 +148,13 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
                 with torch.no_grad():
                     outputs = self.net(inputs)
                     loss = self.loss_function(reduction=reduction)(outputs, labels)
+                    unreduced_loss = self.loss_function(reduction="none")(
+                        outputs, labels
+                    )
             else:
                 outputs = self.net(inputs)
                 loss = self.loss_function(reduction=reduction)(outputs, labels)
+                unreduced_loss = self.loss_function(reduction="none")(outputs, labels)
 
             if has_no_accuracy(self):
                 accuracy = 0.0
@@ -168,10 +172,8 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
 
             result = loss + regularizer_loss
 
-            # compute and make unreduced loss accessible
-            with torch.no_grad():
-                unreduced_loss = self.loss_function(reduction="none")(outputs, labels)
-                setattr(result, savefield, unreduced_loss)
+            # make unreduced loss accessible
+            setattr(result, savefield, unreduced_loss)
 
             return result, accuracy
 
