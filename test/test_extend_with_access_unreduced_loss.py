@@ -8,6 +8,13 @@ import torch
 from backobs.utils import SUPPORTED, UNSUPPORTED
 from backpack import backpack
 from deepobs.config import set_data_dir
+from deepobs.pytorch.config import set_default_device
+from deepobs.pytorch.testproblems import quadratic_deep
+
+FORCE_CPU = True
+if FORCE_CPU:
+    set_default_device("cpu")
+
 
 set_data_dir("~/tmp/data_deepobs")
 
