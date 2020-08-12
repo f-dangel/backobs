@@ -141,9 +141,6 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
                    contains the unreduced loss.
                 float: Mini-batch accuracy. 0 for regression tasks.
             """
-            correct = 0.0
-            total = 0.0
-
             # evaluation phases don't require gradients
             if self.phase in ["train_eval", "test", "valid"]:
                 grad_ctx = torch.no_grad
@@ -159,8 +156,8 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
                 accuracy = 0.0
             else:
                 _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
+                total = labels.size(0)
+                correct = (predicted == labels).sum().item()
 
                 accuracy = correct / total
 
