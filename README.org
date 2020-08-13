@@ -41,7 +41,10 @@ Unsupported problems include:
 
 ** Installation
 #+BEGIN_SRC bash
-pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
+  # once the code is public
+  pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
+  # private
+  pip install -e git+ssh://git@github.com/f-dangel/backobs.git@master#egg=backobs
 #+END_SRC
 ** Basic examples
 - How to extend a testproblem in [[https://github.com/fsschneider/DeepOBS][DeepOBS]] with [[https://www.backpack.pt][BackPACK]] ([[file:./example/extend.py][file]]):
