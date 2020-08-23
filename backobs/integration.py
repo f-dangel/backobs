@@ -27,6 +27,11 @@ def extend(tproblem: TestProblem, debug=False):
         tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
         debug (bool): Activate debugging mode of BackPACK's `extend` function.
 
+    Raises:
+        NotImplementedError: If BackPACK does not support the DeepOBS TestProblem
+            or the test problem has ℓ₂ regularization.
+        ValueError: If the testproblem has already been extended.
+
     Returns:
         TestProblem: extended testproblem.
     """
@@ -125,6 +130,7 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
         """Return callable to evaluate loss and accuracy on the current mini-batch.
 
         Args:
+            self (deepobs.testproblems.TestProblem): Test problem of the callable.
             reduction (str): Reduction of individual losses, 'mean', 'sum' or 'none'.
             add_regularization_if_available (bool): Add regularization to the
                 empirical risk.

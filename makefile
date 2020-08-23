@@ -85,7 +85,7 @@ pydocstyle-check:
 	@pydocstyle --count backobs
 
 darglint-check:
-	@darglint --verbosity 2 .
+	@darglint --verbosity 2 backobs
 
 isort:
 	@isort --apply .

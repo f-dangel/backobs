@@ -65,5 +65,13 @@ UNSUPPORTED = tuple(p for p in ALL if (p in BATCH_NORM or p in VAE))
 
 
 def has_no_accuracy(tproblem: TestProblem):
-    """Return whether accuracy is defined for a DeepOBS task."""
+    """Return whether accuracy is defined for a DeepOBS task.
+
+    Args:
+        tproblem (TestProblem): DeepOBS testproblem.
+
+    Returns:
+        bool: ``True`` if accuracy is defined for the testproblem task,
+            else ``False``.
+    """
     return isinstance(tproblem, REGRESSION)
