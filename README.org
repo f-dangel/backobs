@@ -4,11 +4,6 @@
 #+author: F. Dangel
 
 * Combining [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] and [[https://backpack.readthedocs.io/en/latest/][BackPACK]]
-For an overview about the supported problems, run
-#+BEGIN_SRC bash :results output
-  python example/supported.py 
-#+END_SRC
-
 #+RESULTS:
 #+begin_example
 Supported:
