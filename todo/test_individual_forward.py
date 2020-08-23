@@ -3,10 +3,10 @@
 Background: Check structure of loss to be sum of individual losses.
 """
 import torch
+from test_forward import forward_pass, set_up_problem, tproblem_cls_from_str
 
 from backobs.utils import has_batchnorm, has_dropout
 from deepobs.config import set_data_dir
-from test_forward import forward_pass, set_up_problem, tproblem_cls_from_str
 
 
 def manual_forward_pass_loop(tproblem):

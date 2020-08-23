@@ -2,11 +2,12 @@
 Reduced and unreduced forward pass using only one forward throught the model.
 """
 
+from test_forward import set_up_problem
+
 from backobs.integration import integrate_individual_loss
 from backpack import backpack, extensions
 from deepobs.config import set_data_dir
 from deepobs.pytorch.testproblems import fmnist_2c2d, mnist_logreg, quadratic_deep
-from test_forward import set_up_problem
 
 if __name__ == "__main__":
     use_backpack = False
