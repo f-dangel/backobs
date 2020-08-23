@@ -62,7 +62,7 @@ jobs:
       run: |
         make pydocstyle-check
   isort:
-    # if: false
+    if: false
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -77,7 +77,6 @@ jobs:
     - name: Run isort
       run: |
         make isort-check
-
   darglint:
     if: false
     runs-on: ubuntu-latest
