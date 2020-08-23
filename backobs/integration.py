@@ -1,4 +1,4 @@
-"""Custom Runner to track statistics. """
+"""Integrate BackPACK into DeepOBS problems."""
 
 import contextlib
 import types

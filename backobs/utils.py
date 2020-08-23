@@ -1,3 +1,5 @@
+"""Utility functions and groups of testproblems."""
+
 from deepobs.pytorch.testproblems import (
     cifar10_3c3d,
     cifar10_vgg16,

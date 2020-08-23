@@ -82,7 +82,7 @@ flake8:
 	@flake8 .
 
 pydocstyle-check:
-	@pydocstyle --count .
+	@pydocstyle --count backobs
 
 darglint-check:
 	@darglint --verbosity 2 .

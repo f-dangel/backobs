@@ -46,7 +46,7 @@ jobs:
       run: |
         make black-check
   pydocstyle:
-    if: false
+    # if: false
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
