@@ -1,7 +1,6 @@
 """Accessing the unreduced loss should not change forward/backward."""
 
-from test.utils import (check_sizes_and_values, get_reduction_factor,
-                        set_up_problem)
+from test.utils import check_sizes_and_values, get_reduction_factor, set_up_problem
 
 import pytest
 import torch

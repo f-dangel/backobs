@@ -4,9 +4,9 @@ import numpy
 import torch
 
 from backobs.integration import extend as backobs_extend
-from backobs.integration import \
-    extend_with_access_unreduced_loss as \
-    backobs_extend_with_access_unreduced_loss
+from backobs.integration import (
+    extend_with_access_unreduced_loss as backobs_extend_with_access_unreduced_loss,
+)
 
 
 def set_deepobs_seed(seed=0):
