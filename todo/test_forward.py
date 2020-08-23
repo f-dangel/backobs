@@ -10,7 +10,8 @@ import random
 import numpy
 import torch
 
-from backobs.integration import ALL, extend
+from backobs.integration import ALL
+from backobs.integration import extend as backobs_extend
 from deepobs.config import set_data_dir
 
 
@@ -29,7 +30,7 @@ def set_up_problem(tproblem_cls, batch_size, seed=0, extend=False):
     with contextlib.redirect_stdout(None):
         tproblem.set_up()
     if extend:
-        tproblem = extend(tproblem, check=False)
+        tproblem = backobs_extend(tproblem, check=False)
     tproblem.train_init_op()
 
     return tproblem
@@ -81,14 +82,12 @@ def manual_forward_pass_correct(
             name = tproblem_cls.__name__
             same_symbol = "✓" if same else "❌"
             print(
-                "{} [{}, l2_reg: {}, BackPACK: {}] DeepOBS: {:.5f}, manual: {:.5f}".format(
-                    same_symbol,
-                    name,
-                    add_regularization_if_available,
-                    extend,
-                    loss,
-                    manual_loss,
-                )
+                "{} [{}, l2_reg: {},".format(
+                    same_symbol, name, add_regularization_if_available
+                ),
+                " BackPACK: {}] DeepOBS: {:.5f}, manual: {:.5f}".format(
+                    extend, loss, manual_loss,
+                ),
             )
 
         return same

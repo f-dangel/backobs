@@ -5,7 +5,7 @@ import types
 
 import torch
 
-from backobs.utils import ALL, SUPPORTED, has_no_accuracy
+from backobs.utils import SUPPORTED, has_no_accuracy
 from backpack import extend as backpack_extend
 from deepobs.pytorch.testproblems.testproblem import TestProblem
 
@@ -17,10 +17,10 @@ def extend(tproblem: TestProblem, debug=False):
         Only a subset of the DeepOBS problems can be supported:
         - The computational graph structure for variational autoencoder problems differs
         from the assumptions in BackPACK.
-        - For problems with batch normalization, the concept of many BackPACK quantities,
-        such as individual gradients, is not defined.
-        - Natural Language processing problems/RNNs are excluded, as they cannot be handled
-        with BackPACK (yet).
+        - For problems with batch normalization, the concept of many BackPACK
+          quantities, such as individual gradients, is not defined.
+        - Natural Language processing problems/RNNs are excluded, as they can
+          not be handled with BackPACK (yet).
         - ℓ₂ regularization is not supported.
 
     Args:
@@ -54,7 +54,8 @@ def extend(tproblem: TestProblem, debug=False):
             reduction (str): Reduction of individual losses, 'mean', 'sum' or 'none'.
 
         Returns:
-            torch.nn.Module: Module used to compute the loss from the network prediction.
+            torch.nn.Module: Module used to compute the loss from the network
+                prediction.
         """
         original_loss_function = getattr(tproblem, original_loss_function_savefield)
         return backpack_extend(original_loss_function(reduction=reduction), debug=debug)
@@ -71,7 +72,8 @@ def extend_with_access_unreduced_loss(
 
     Args:
         tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
-        savefield (str): Name of attribute through which individual loss can be accessed.
+        savefield (str): Name of attribute through which individual loss can be
+            accessed.
         debug (bool): Activate debugging mode of BackPACK's `extend` function.
 
     Returns:
@@ -97,7 +99,8 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
 
     Args:
         tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
-        savefield (str): Name of attribute through which individual loss can be accessed.
+        savefield (str): Name of attribute through which individual loss can
+            be accessed.
 
     Details:
         - Adding a function to an instance: https://stackoverflow.com/a/8961717
@@ -123,7 +126,8 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
 
         Args:
             reduction (str): Reduction of individual losses, 'mean', 'sum' or 'none'.
-            add_regularization_if_available (bool): Add regularization to the empirical risk.
+            add_regularization_if_available (bool): Add regularization to the
+                empirical risk.
 
         Returns:
             callable: Function to evaluate loss and accuracy. Loss has an attribute

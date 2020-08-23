@@ -1,5 +1,3 @@
-import torch
-
 from deepobs.pytorch.testproblems import (
     cifar10_3c3d,
     cifar10_vgg16,
@@ -59,9 +57,9 @@ VAE = (
     mnist_vae,
 )
 REGRESSION = (quadratic_deep,)
-REGULARIZED = tuple([p for p in ALL if not issubclass(p, UnregularizedTestproblem)])
-SUPPORTED = tuple([p for p in ALL if not (p in BATCH_NORM or p in VAE)])
-UNSUPPORTED = tuple([p for p in ALL if (p in BATCH_NORM or p in VAE)])
+REGULARIZED = tuple(p for p in ALL if not issubclass(p, UnregularizedTestproblem))
+SUPPORTED = tuple(p for p in ALL if not (p in BATCH_NORM or p in VAE))
+UNSUPPORTED = tuple(p for p in ALL if (p in BATCH_NORM or p in VAE))
 
 
 def has_no_accuracy(tproblem: TestProblem):
