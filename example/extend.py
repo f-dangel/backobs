@@ -2,9 +2,18 @@
 
 from backobs import extend
 from backpack import backpack
-from backpack.extensions import (KFAC, KFLR, KFRA, BatchGrad, BatchL2Grad,
-                                 DiagGGNExact, DiagGGNMC, DiagHessian,
-                                 SumGradSquared, Variance)
+from backpack.extensions import (
+    KFAC,
+    KFLR,
+    KFRA,
+    BatchGrad,
+    BatchL2Grad,
+    DiagGGNExact,
+    DiagGGNMC,
+    DiagHessian,
+    SumGradSquared,
+    Variance,
+)
 from deepobs.config import set_data_dir
 from deepobs.pytorch.testproblems import mnist_logreg
 

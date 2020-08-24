@@ -3,11 +3,10 @@
 
 #+author: F. Dangel
 
-* Combining [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] and [[https://backpack.readthedocs.io/en/latest/][BackPACK]]
-For an overview about the supported problems, run
-#+BEGIN_SRC bash :results output
-  python example/supported.py 
-#+END_SRC
+* BackOBS = [[https://www.backpack.pt][BackPACK]] + [[https://github.com/fsschneider/DeepOBS][DeepOBS]]
+BackOBS allows you to use [[https://www.backpack.pt][BackPACK]] on [[https://github.com/fsschneider/DeepOBS][DeepOBS]] testproblems (in a limiting way, see details below).
+
+⚠ The package and its API are experimental. Beware of rough edges!
 
 #+RESULTS:
 #+begin_example
@@ -41,10 +40,7 @@ Unsupported problems include:
 
 ** Installation
 #+BEGIN_SRC bash
-  # once the code is public
   pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
-  # private
-  pip install -e git+ssh://git@github.com/f-dangel/backobs.git@master#egg=backobs
 #+END_SRC
 ** Basic examples
 - How to extend a testproblem in [[https://github.com/fsschneider/DeepOBS][DeepOBS]] with [[https://www.backpack.pt][BackPACK]] ([[file:./example/extend.py][file]]):
@@ -227,43 +223,4 @@ dense.bias
   TEST: loss 2.34491, acc 0.101110
   ,********************************
   #+end_example
-
-* Details and debug info (TODO, ignore everything below)
-** Preliminaries 
-*** Set up a virtual environment
-**** Anaconda
-Use the ~.yml~ file to install all required dependencies into a ~conda~ environment named ~backobs~.
-#+BEGIN_SRC bash
-conda env create -f .conda_env.yml
-#+END_SRC
-Activate it
-#+BEGIN_SRC bash
-conda activate backobs
-#+END_SRC
-**** I don't want to use Anaconda
-Make sure you have ~backpack~ and ~deepobs~ installed in your favorite environment.
-
-*** Install ~backobs~
-#+BEGIN_SRC bash
-pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
-#+END_SRC
-** Example
-*** The runner
-The [[file:example/][example directory]] contains a [[file:example/runner.py][basic runner]] that integrates BackPACK into DeepOBS test problems. You can modify it to your needs, or leave it as is to run an example.
-*** Run SGD on a DeepOBS problem with BackPACK 
-There exists a [[file:example/run.py][run script]] you can simply execute from the command line.
-
-Let's run SGD on the MNIST linear regression task with a learning rate of ~0.1~ and momentum of ~0.9~:
-#+BEGIN_SRC bash
-python example/run.py mnist_logreg --lr 0.1 --momentum 0.9
-#+END_SRC
-
-*** Not all problems are supported
-ResNets and variational autoencoders are not supported by BackPACK.
-
-For instance, this will crash:
-#+BEGIN_SRC 
-# WideResNet
-python example/run.py svhn_wrn164 --lr 0.1 --momentum 0.9
-#+END_SRC
 

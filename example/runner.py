@@ -20,7 +20,7 @@ class BackpackRunner(PTRunner):
         super().__init__(optimizer_class, hyperparameter_names)
         self._extensions_fn = extensions_fn
 
-    def training(
+    def training(  # noqa: C901
         self,
         tproblem,
         hyperparams,
@@ -76,7 +76,7 @@ class BackpackRunner(PTRunner):
             if epoch_count == num_epochs:
                 break
 
-            ### Training ###
+            # Training #
 
             # set to training mode
             tproblem.train_init_op()
@@ -107,7 +107,7 @@ class BackpackRunner(PTRunner):
                     # [backobs] This block is for demonstration and can be removed
                     if batch_count == 3:
                         warnings.warn(
-                            f"[backobs] This demo performs only 3 steps per epoch."
+                            "[backobs] This demo performs only 3 steps per epoch."
                         )
                         raise StopIteration
 

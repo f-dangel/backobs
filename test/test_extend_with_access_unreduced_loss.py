@@ -1,12 +1,11 @@
 """Accessing the unreduced loss should not change forward/backward."""
 
-from test.utils import (check_sizes_and_values, get_reduction_factor,
-                        set_up_problem)
+from test.utils import check_sizes_and_values, get_reduction_factor, set_up_problem
 
 import pytest
 import torch
 
-from backobs.utils import SUPPORTED, UNSUPPORTED
+from backobs.utils import SUPPORTED
 from backpack import backpack, extensions
 from deepobs.config import set_data_dir
 from deepobs.pytorch.config import set_default_device
@@ -66,7 +65,7 @@ def test_same_forward(tproblem_cls, batch_size=3, seed=0):
 
 @pytest.mark.parametrize("tproblem_cls", SUPPORTED, ids=[p.__name__ for p in SUPPORTED])
 def test_same_backward(tproblem_cls, batch_size=3, seed=0):
-    """Test that extended problem with access to unreduced los has the same backward pass.
+    """Test extended problem with access to unreduced loss has same backward pass.
 
     Args:
         tproblem (TestProblem): DeepOBS test problem class.

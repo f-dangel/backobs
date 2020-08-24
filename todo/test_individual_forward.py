@@ -3,10 +3,10 @@
 Background: Check structure of loss to be sum of individual losses.
 """
 import torch
+from test_forward import forward_pass, set_up_problem, tproblem_cls_from_str
 
 from backobs.utils import has_batchnorm, has_dropout
 from deepobs.config import set_data_dir
-from test_forward import forward_pass, set_up_problem, tproblem_cls_from_str
 
 
 def manual_forward_pass_loop(tproblem):
@@ -57,14 +57,12 @@ def manual_forward_pass_loop_correct(
             name = tproblem_cls.__name__
             same_symbol = "✓" if same else "❌"
             print(
-                "{} [{}, l2_reg: {}, BackPACK: {}] DeepOBS: {:.5f}, manual for-loop: {:.5f}".format(
-                    same_symbol,
-                    name,
-                    add_regularization_if_available,
-                    extend,
-                    loss,
-                    manual_loss,
-                )
+                "{} [{}, l2_reg: {},".format(
+                    same_symbol, name, add_regularization_if_available,
+                ),
+                " BackPACK: {}] DeepOBS: {:.5f}, manual for-loop: {:.5f}".format(
+                    extend, loss, manual_loss,
+                ),
             )
             if not same:
                 has_bn = has_batchnorm(tproblem.net)

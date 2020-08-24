@@ -3,11 +3,11 @@
 import argparse
 
 import torch
+from test_forward import set_up_problem, tproblem_cls_from_str
+from test_individual_forward import has_batchnorm, has_dropout
 
 from backpack import backpack, extensions
 from deepobs.config import set_data_dir
-from test_forward import forward_pass, set_up_problem, tproblem_cls_from_str
-from test_individual_forward import has_batchnorm, has_dropout
 
 
 def autograd_individual_gradients(X, y, forward_fn, parameters):

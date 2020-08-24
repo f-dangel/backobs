@@ -1,12 +1,11 @@
 """Run BackpackRunner with SGD on a DeepOBS test problem."""
 
+from runner import BackpackRunner
 from torch.optim import SGD
 
-from backobs.utils import SUPPORTED
 from backpack import extensions
 from deepobs.config import set_data_dir
 from deepobs.pytorch.config import set_default_device
-from runner import BackpackRunner
 
 FORCE_CPU = False
 if FORCE_CPU:
