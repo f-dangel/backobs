@@ -1,0 +1,19 @@
+language: python
+python:
+- '3.7'
+- '3.8'
+install:
+- pip install -r requirements.txt
+- pip install -r requirements/test.txt
+- pip install .
+cache:
+- pip
+script:
+- pytest -vx -k mnist --cov=backobs test
+after_success:
+- coveralls
+notifications:
+  email: false
+  slack:
+    secure: F/zplm2kjK06yZorkvKFf+2bGhmsKzi3uZQJarZFQHZLIIkBQGVzTIWdOBlJdH4Xjt9FMH9a4ZuRpEco6YewxKWYFl5gkbjoHuNu2ZqoXRhOiNc/vxVO53pYKS4M8JgyJLdsz2H9TipL0Gx0dJ3yBHIx8t+FOSpErrwT108luvkZFYVj79ArTmD5rKE9ViUodkfnBUHIEhqegLAF0Xow4PR5UuvM8IbKxnjtli21dNpMCUWW97DKZ4NTsfKXbDq9yi4MD8p3RR9MD9jQ4I4lVsfziInmhk6BiVi6dmDAg1xmtgcDkkOo9Ug0/hsPrZi1mYdCmVmd0R6sCTFZJvlD7zUNHePqGyKVyAjqt0C1hrvoxtKg1uzXYxPYuGFHerTqYM+SHTVHfK7BB6yy84/MJfbTKTuy/iDqz3hKAKbz4wokVw1FcPCj1riP8GdwHOjibhyHHLPie5VH1s4YkA3H54Nx7oS/PhEJ9AjOjPdFB16lCziujirVZFq3TJKLtum8300re0P7aDizL9jWy4SepKXUAwyCFia28YfEkNrUF/lsH0ypcB3mh88TnsfsSVTGQVBmr2bfUmd3RVjdy6tviYSHcA4yXDsl9GkqfY6bRMDtC2h43EOqgJxIH3claLSjbN4d2IpaVkh2ZsWoI+3r1WbwoM1ASNRTTBgWI5dnasA=
+    on_success: never

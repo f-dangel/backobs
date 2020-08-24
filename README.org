@@ -4,7 +4,13 @@
 #+author: F. Dangel
 
 * BackOBS = [[https://www.backpack.pt][BackPACK]] + [[https://github.com/fsschneider/DeepOBS][DeepOBS]]
-BackOBS allows you to use [[https://www.backpack.pt][BackPACK]] on [[https://github.com/fsschneider/DeepOBS][DeepOBS]] testproblems (in a limiting way, see details below).
+
+[[https://travis-ci.org/f-dangel/backobs][https://travis-ci.org/f-dangel/backobs.svg?branch=master]]
+[[https://coveralls.io/github/f-dangel/backobs][https://coveralls.io/repos/github/f-dangel/backobs/badge.svg?branch=master]]
+[[https://www.python.org/downloads/release/python-370/][https://img.shields.io/badge/python-3.7+-blue.svg]]
+
+
+BackOBS allows you to use [[https://www.backpack.pt][BackPACK]] on [[https://github.com/fsschneider/DeepOBS][DeepOBS]] testproblems (in a limiting way, see details below)
 
 ⚠ The package and its API are experimental. Beware of rough edges!
 
