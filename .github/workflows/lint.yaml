@@ -3,9 +3,7 @@ name: Lint
 on:
   push:
     branches:
-      - development
-      - master
-      - github-actions
+      - '*'
   pull_request:
     branches:
       - development
