@@ -3,7 +3,11 @@
 
 #+author: F. Dangel
 
-* Combining [[https://deepobs.readthedocs.io/en/stable/][DeepOBS]] and [[https://backpack.readthedocs.io/en/latest/][BackPACK]]
+* BackOBS = [[https://www.backpack.pt][BackPACK]] + [[https://github.com/fsschneider/DeepOBS][DeepOBS]]
+BackOBS allows you to use [[https://www.backpack.pt][BackPACK]] on [[https://github.com/fsschneider/DeepOBS][DeepOBS]] testproblems (in a limiting way, see details below).
+
+⚠ The package and its API are experimental. Beware of rough edges!
+
 #+RESULTS:
 #+begin_example
 Supported:
@@ -36,10 +40,7 @@ Unsupported problems include:
 
 ** Installation
 #+BEGIN_SRC bash
-  # once the code is public
   pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
-  # private
-  pip install -e git+ssh://git@github.com/f-dangel/backobs.git@master#egg=backobs
 #+END_SRC
 ** Basic examples
 - How to extend a testproblem in [[https://github.com/fsschneider/DeepOBS][DeepOBS]] with [[https://www.backpack.pt][BackPACK]] ([[file:./example/extend.py][file]]):
