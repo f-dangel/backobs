@@ -1,6 +1,7 @@
 """Integrate BackPACK into DeepOBS problems."""
 
 import contextlib
+import copy
 import types
 
 import torch
@@ -62,7 +63,9 @@ def extend(tproblem: TestProblem, debug=False):
             torch.nn.Module: Module used to compute the loss from the network
                 prediction.
         """
-        original_loss_function = getattr(tproblem, original_loss_function_savefield)
+        original_loss_function = copy.deepcopy(
+            getattr(tproblem, original_loss_function_savefield)
+        )
         return backpack_extend(original_loss_function(reduction=reduction), debug=debug)
 
     tproblem.loss_function = new_loss_function
