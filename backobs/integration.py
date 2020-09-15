@@ -10,6 +10,8 @@ from backobs.utils import SUPPORTED, has_no_accuracy
 from backpack import extend as backpack_extend
 from deepobs.pytorch.testproblems.testproblem import TestProblem
 
+original_loss_function_savefield = "_old_loss_function"
+
 
 def extend(tproblem: TestProblem, debug=False):
     """Add BackPACK functionality to a DeepOBS test problem.
@@ -42,8 +44,6 @@ def extend(tproblem: TestProblem, debug=False):
         raise NotImplementedError(
             f"No support for ℓ₂ regularization (got l2_reg={tproblem._l2_reg})"
         )
-
-    original_loss_function_savefield = "_old_loss_function"
 
     already_extended = hasattr(tproblem, original_loss_function_savefield)
     if already_extended:
@@ -166,9 +166,16 @@ def _add_access_unreduced_loss(
 
             with grad_ctx():
                 outputs = self.net(inputs)
-                unreduced_loss = self.loss_function(reduction="none")(outputs, labels)
+
+                original_loss_function = copy.deepcopy(
+                    getattr(tproblem, original_loss_function_savefield)
+                )
+                unreduced_loss = original_loss_function(reduction="none")(
+                    outputs, labels
+                )
                 if detach:
                     unreduced_loss = unreduced_loss.detach()
+
                 loss = self.loss_function(reduction=reduction)(outputs, labels)
 
             if has_no_accuracy(self):
