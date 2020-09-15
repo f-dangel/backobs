@@ -74,7 +74,7 @@ def extend(tproblem: TestProblem, debug=False):
 
 
 def extend_with_access_unreduced_loss(
-    tproblem: TestProblem, savefield="_unreduced_loss", debug=False
+    tproblem: TestProblem, savefield="_unreduced_loss", detach=False, debug=False
 ):
     """Same as `extend`, modifies loss computation to provide access to unreduced loss.
 
@@ -82,6 +82,7 @@ def extend_with_access_unreduced_loss(
         tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
         savefield (str): Name of attribute through which individual loss can be
             accessed.
+        detach (bool): Detach the unreduced loss.
         debug (bool): Activate debugging mode of BackPACK's `extend` function.
 
     Returns:
@@ -89,12 +90,14 @@ def extend_with_access_unreduced_loss(
             such that the unreduced loss can be accessed via the mini-batch loss.
     """
     tproblem = extend(tproblem, debug=debug)
-    tproblem = _add_access_unreduced_loss(tproblem, savefield=savefield)
+    tproblem = _add_access_unreduced_loss(tproblem, savefield=savefield, detach=detach)
 
     return tproblem
 
 
-def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss"):
+def _add_access_unreduced_loss(
+    tproblem: TestProblem, savefield="_unreduced_loss", detach=False
+):
     """Provide access to unreduced losses when evaluating the reduced loss.
 
     Overwrites the `get_batch_loss_and_accuracy_func` of a testproblem. The function
@@ -109,6 +112,7 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
         tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
         savefield (str): Name of attribute through which individual loss can
             be accessed.
+        detach (bool): Detach the unreduced loss.
 
     Details:
         - Adding a function to an instance: https://stackoverflow.com/a/8961717
@@ -162,8 +166,10 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
 
             with grad_ctx():
                 outputs = self.net(inputs)
-                loss = self.loss_function(reduction=reduction)(outputs, labels)
                 unreduced_loss = self.loss_function(reduction="none")(outputs, labels)
+                if detach:
+                    unreduced_loss = unreduced_loss.detach()
+                loss = self.loss_function(reduction=reduction)(outputs, labels)
 
             if has_no_accuracy(self):
                 accuracy = 0.0
