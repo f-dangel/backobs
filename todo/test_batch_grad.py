@@ -18,7 +18,7 @@ def autograd_individual_gradients(X, y, forward_fn, parameters):
 
     Note:
         Individual gradients only make sense, if the summands in the loss
-        depend on a single datum (xₙ, yₙ). 
+        depend on a single datum (xₙ, yₙ).
 
     Args:
         X (torch.Tensor): `(N, *)` batch of input data.
@@ -162,13 +162,21 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "tproblem_cls", type=str, help="Name of the DeepOBS testproblem",
+        "tproblem_cls",
+        type=str,
+        help="Name of the DeepOBS testproblem",
     )
     parser.add_argument(
-        "--batch_size", type=int, default=3, help="Batch size",
+        "--batch_size",
+        type=int,
+        default=3,
+        help="Batch size",
     )
     parser.add_argument(
-        "--seed", type=int, default=0, help="Random seed",
+        "--seed",
+        type=int,
+        default=0,
+        help="Random seed",
     )
     parser.add_argument(
         "--verbose",
