@@ -10,146 +10,43 @@
 [[https://www.python.org/downloads/release/python-370/][https://img.shields.io/badge/python-3.7+-blue.svg]]
 
 
-BackOBS allows you to use [[https://www.backpack.pt][BackPACK]] on [[https://github.com/fsschneider/DeepOBS][DeepOBS]] testproblems (in a limiting way, see details below)
+BackOBS allows you to use [[https://www.backpack.pt][BackPACK]] on [[https://github.com/fsschneider/DeepOBS][DeepOBS]] problems (for limitations, see below)
 
 ⚠ The package and its API are experimental. Beware of rough edges!
-
-#+RESULTS:
-#+begin_example
-Supported:
-	✔ cifar10_3c3d
-	✔ cifar10_vgg16
-	✔ cifar10_vgg19
-	✔ cifar100_3c3d
-	✔ cifar100_allcnnc
-	✔ cifar100_vgg16
-	✔ cifar100_vgg19
-	✔ fmnist_2c2d
-	✔ fmnist_logreg
-	✔ fmnist_mlp
-	✔ mnist_2c2d
-	✔ mnist_logreg
-	✔ mnist_mlp
-	✔ quadratic_deep
-	✔ svhn_3c3d
-Not supported:
-	❌ cifar100_wrn164
-	❌ cifar100_wrn404
-	❌ fmnist_vae
-	❌ mnist_vae
-	❌ svhn_wrn164
-#+end_example
-
-Unsupported problems include:
-- Variational autoencoder problems (~mnist_vae~, ~fmnist-vae~)
-- Problems with batch normalization (~cifar100_wrn164~, ~cifar100_wrn404~, ~svhn_wrn164~)
 
 ** Installation
 #+BEGIN_SRC bash
   pip install -e git://github.com/f-dangel/backobs.git@master#egg=backobs
 #+END_SRC
-** Basic examples
-- How to extend a testproblem in [[https://github.com/fsschneider/DeepOBS][DeepOBS]] with [[https://www.backpack.pt][BackPACK]] ([[file:./example/extend.py][file]]):
-  #+BEGIN_SRC bash :results output
-    python example/extend.py
-  #+END_SRC
 
-  #+RESULTS:
-#+begin_example
-dense.weight
-	.grad.shape:              torch.Size([10, 784])
-	.grad_batch.shape:        torch.Size([128, 10, 784])
-	.variance.shape:          torch.Size([10, 784])
-	.sum_grad_squared.shape:  torch.Size([10, 784])
-	.batch_l2.shape:          torch.Size([128])
-	.diag_ggn_mc.shape:       torch.Size([10, 784])
-	.diag_ggn_exact.shape:    torch.Size([10, 784])
-	.diag_h.shape:            torch.Size([10, 784])
-	.kfac (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
-	.kflr (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
-	.kfra (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
-dense.bias
-	.grad.shape:              torch.Size([10])
-	.grad_batch.shape:        torch.Size([128, 10])
-	.variance.shape:          torch.Size([10])
-	.sum_grad_squared.shape:  torch.Size([10])
-	.batch_l2.shape:          torch.Size([128])
-	.diag_ggn_mc.shape:       torch.Size([10])
-	.diag_ggn_exact.shape:    torch.Size([10])
-	.diag_h.shape:            torch.Size([10])
-	.kfac (shapes):           [torch.Size([10, 10])]
-	.kflr (shapes):           [torch.Size([10, 10])]
-	.kfra (shapes):           [torch.Size([10, 10])]
-#+end_example
-- How to extend a testproblem with [[https://www.backpack.pt][BackPACK]] and get access to the unreduced loss ([[file:./example/extend_with_access_unreduced_loss.py][here]]):
-  #+BEGIN_SRC bash :results output
-    python example/extend_with_access_unreduced_loss.py
-  #+END_SRC
+** (Un-)supported problems
+[[https://www.backpack.pt][BackPACK]] imposes limitations on which problems can be supported. Unsupported settings are:
+- Variational autoencoders (~mnist_vae~, ~fmnist-vae~)
+- Batch normalization (~cifar100_wrn164~, ~cifar100_wrn404~, ~svhn_wrn164~)
 
-  #+RESULTS:
-  #+begin_example
-  Individual loss shape:    torch.Size([128])
-  Mini-batch loss:          tensor(2.3026, device='cuda:0', grad_fn=<AddBackward0>)
-  Averaged individual loss: tensor(2.3026, device='cuda:0')
-  dense.weight
-    .grad.shape:              torch.Size([10, 784])
-    .grad_batch.shape:        torch.Size([128, 10, 784])
-    .variance.shape:          torch.Size([10, 784])
-    .sum_grad_squared.shape:  torch.Size([10, 784])
-    .batch_l2.shape:          torch.Size([128])
-    .diag_ggn_mc.shape:       torch.Size([10, 784])
-    .diag_ggn_exact.shape:    torch.Size([10, 784])
-    .diag_h.shape:            torch.Size([10, 784])
-    .kfac (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
-    .kflr (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
-    .kfra (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
-  dense.bias
-    .grad.shape:              torch.Size([10])
-    .grad_batch.shape:        torch.Size([128, 10])
-    .variance.shape:          torch.Size([10])
-    .sum_grad_squared.shape:  torch.Size([10])
-    .batch_l2.shape:          torch.Size([128])
-    .diag_ggn_mc.shape:       torch.Size([10])
-    .diag_ggn_exact.shape:    torch.Size([10])
-    .diag_h.shape:            torch.Size([10])
-    .kfac (shapes):           [torch.Size([10, 10])]
-    .kflr (shapes):           [torch.Size([10, 10])]
-    .kfra (shapes):           [torch.Size([10, 10])]
-  #+end_example
-- A [[https://github.com/fsschneider/DeepOBS][DeepOBS]] testproblem runner for SGD, extended with [[https://www.backpack.pt][BackPACK]] functionality ([[file:./example/runner.py][here]]):
-  #+BEGIN_SRC bash :results output
-    python example/run.py mnist_logreg --lr 0.1
-  #+END_SRC
+| *Support* |    *Problem*     |
+| ✔     | ~cifar10_3c3d~     |
+| ✔     | ~cifar10_vgg16~    |
+| ✔     | ~cifar10_vgg19~    |
+| ✔     | ~cifar100_3c3d~    |
+| ✔     | ~cifar100_allcnnc~ |
+| ✔     | ~cifar100_vgg16~   |
+| ✔     | ~cifar100_vgg19~   |
+| ✔     | ~fmnist_2c2d~      |
+| ✔     | ~fmnist_logreg~    |
+| ✔     | ~fmnist_mlp~       |
+| ✔     | ~mnist_2c2d~       |
+| ✔     | ~mnist_logreg~     |
+| ✔     | ~mnist_mlp~        |
+| ✔     | ~quadratic_deep~   |
+| ✔     | ~svhn_3c3d~        |
+| ❌     | ~cifar100_wrn164~  |
+| ❌     | ~cifar100_wrn404~  |
+| ❌     | ~fmnist_vae~       |
+| ❌     | ~mnist_vae~        |
+| ❌     | ~svhn_wrn164~      |
 
-  #+RESULTS:
-  #+begin_example
-  ,********************************
-  Evaluating after 0 of 1 epochs...
-  TRAIN: loss 2.30259, acc 0.104610
-  VALID: loss 2.30259, acc 0.100510
-  TEST: loss 2.30259, acc 0.098010
-  ,********************************
-  [backobs] Extension: BatchGrad
-    Parameter 0: Shape (3, 10, 784)
-    Parameter 1: Shape (3, 10)
-  [backobs] Extension: BatchGrad
-    Parameter 0: Shape (3, 10, 784)
-    Parameter 1: Shape (3, 10)
-  [backobs] Extension: BatchGrad
-    Parameter 0: Shape (3, 10, 784)
-    Parameter 1: Shape (3, 10)
-  [backobs] Extension: BatchGrad
-    Parameter 0: Shape (3, 10, 784)
-    Parameter 1: Shape (3, 10)
-  ,********************************
-  Evaluating after 1 of 1 epochs...
-  TRAIN: loss 2.83062, acc 0.176418
-  VALID: loss 2.81457, acc 0.180918
-  TEST: loss 2.84024, acc 0.178218
-  ,********************************
-  #+end_example
-
-** Important
+*** Important
 - ℓ₂ regularization is *not supported*:
   #+BEGIN_SRC bash :results output
     # ℓ₂ not supported: this will crash!
@@ -229,4 +126,103 @@ dense.bias
   TEST: loss 2.34491, acc 0.101110
   ,********************************
   #+end_example
+** Basic examples
+- How to extend a [[https://github.com/fsschneider/DeepOBS][DeepOBS]] problem with [[https://www.backpack.pt][BackPACK]] ([[file:./example/extend.py][file]]):
+  #+BEGIN_SRC bash :results output
+    python example/extend.py
+  #+END_SRC
 
+  #+RESULTS:
+#+begin_example
+dense.weight
+  .grad.shape:              torch.Size([10, 784])
+  .grad_batch.shape:        torch.Size([128, 10, 784])
+  .variance.shape:          torch.Size([10, 784])
+  .sum_grad_squared.shape:  torch.Size([10, 784])
+  .batch_l2.shape:          torch.Size([128])
+  .diag_ggn_mc.shape:       torch.Size([10, 784])
+  .diag_ggn_exact.shape:    torch.Size([10, 784])
+  .diag_h.shape:            torch.Size([10, 784])
+  .kfac (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+  .kflr (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+  .kfra (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+dense.bias
+  .grad.shape:              torch.Size([10])
+  .grad_batch.shape:        torch.Size([128, 10])
+  .variance.shape:          torch.Size([10])
+  .sum_grad_squared.shape:  torch.Size([10])
+  .batch_l2.shape:          torch.Size([128])
+  .diag_ggn_mc.shape:       torch.Size([10])
+  .diag_ggn_exact.shape:    torch.Size([10])
+  .diag_h.shape:            torch.Size([10])
+  .kfac (shapes):           [torch.Size([10, 10])]
+  .kflr (shapes):           [torch.Size([10, 10])]
+  .kfra (shapes):           [torch.Size([10, 10])]
+#+end_example
+- How to extend a problem with [[https://www.backpack.pt][BackPACK]] and get access to the unreduced loss ([[file:./example/extend_with_access_unreduced_loss.py][file]]):
+  #+BEGIN_SRC bash :results output
+    python example/extend_with_access_unreduced_loss.py
+  #+END_SRC
+
+  #+RESULTS:
+  #+begin_example
+  Individual loss shape:    torch.Size([128])
+  Mini-batch loss:          tensor(2.3026, device='cuda:0', grad_fn=<AddBackward0>)
+  Averaged individual loss: tensor(2.3026, device='cuda:0')
+  dense.weight
+    .grad.shape:              torch.Size([10, 784])
+    .grad_batch.shape:        torch.Size([128, 10, 784])
+    .variance.shape:          torch.Size([10, 784])
+    .sum_grad_squared.shape:  torch.Size([10, 784])
+    .batch_l2.shape:          torch.Size([128])
+    .diag_ggn_mc.shape:       torch.Size([10, 784])
+    .diag_ggn_exact.shape:    torch.Size([10, 784])
+    .diag_h.shape:            torch.Size([10, 784])
+    .kfac (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+    .kflr (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+    .kfra (shapes):           [torch.Size([10, 10]), torch.Size([784, 784])]
+  dense.bias
+    .grad.shape:              torch.Size([10])
+    .grad_batch.shape:        torch.Size([128, 10])
+    .variance.shape:          torch.Size([10])
+    .sum_grad_squared.shape:  torch.Size([10])
+    .batch_l2.shape:          torch.Size([128])
+    .diag_ggn_mc.shape:       torch.Size([10])
+    .diag_ggn_exact.shape:    torch.Size([10])
+    .diag_h.shape:            torch.Size([10])
+    .kfac (shapes):           [torch.Size([10, 10])]
+    .kflr (shapes):           [torch.Size([10, 10])]
+    .kfra (shapes):           [torch.Size([10, 10])]
+  #+end_example
+- A [[https://github.com/fsschneider/DeepOBS][DeepOBS]] problem runner for SGD, extended with [[https://www.backpack.pt][BackPACK]] functionality ([[file:./example/runner.py][file]]):
+  #+BEGIN_SRC bash :results output
+    python example/run.py mnist_logreg --lr 0.1
+  #+END_SRC
+
+  #+RESULTS:
+  #+begin_example
+  ,********************************
+  Evaluating after 0 of 1 epochs...
+  TRAIN: loss 2.30259, acc 0.104610
+  VALID: loss 2.30259, acc 0.100510
+  TEST: loss 2.30259, acc 0.098010
+  ,********************************
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 10, 784)
+    Parameter 1: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 10, 784)
+    Parameter 1: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 10, 784)
+    Parameter 1: Shape (3, 10)
+  [backobs] Extension: BatchGrad
+    Parameter 0: Shape (3, 10, 784)
+    Parameter 1: Shape (3, 10)
+  ,********************************
+  Evaluating after 1 of 1 epochs...
+  TRAIN: loss 2.83062, acc 0.176418
+  VALID: loss 2.81457, acc 0.180918
+  TEST: loss 2.84024, acc 0.178218
+  ,********************************
+  #+end_example
