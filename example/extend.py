@@ -1,5 +1,7 @@
 """Basic example showing how to extend a DeepOBS problem with BackPACK."""
 
+import os
+
 from backobs import extend
 from backpack import backpack
 from backpack.extensions import (
@@ -17,7 +19,8 @@ from backpack.extensions import (
 from deepobs.config import set_data_dir
 from deepobs.pytorch.testproblems import mnist_logreg
 
-set_data_dir("~/tmp/data_deepobs")
+set_data_dir(os.path.expanduser("~/tmp/data_deepobs"))
+
 
 # set up the neural net/dataset in DeepOBS
 tproblem = mnist_logreg(batch_size=128)

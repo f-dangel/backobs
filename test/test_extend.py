@@ -1,5 +1,6 @@
 """Extending a DeepOBS problem should not change forward/backward."""
 
+import os
 from test.utils import check_sizes_and_values, set_up_problem
 
 import pytest
@@ -11,7 +12,8 @@ from backpack import backpack
 from deepobs.config import set_data_dir
 from deepobs.pytorch.config import set_default_device
 
-set_data_dir("~/tmp/data_deepobs")
+set_data_dir(os.path.expanduser("~/tmp/data_deepobs"))
+
 
 FORCE_CPU = True
 if FORCE_CPU:

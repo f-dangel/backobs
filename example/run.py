@@ -1,5 +1,7 @@
 """Run BackpackRunner with SGD on a DeepOBS test problem."""
 
+import os
+
 from runner import BackpackRunner
 from torch.optim import SGD
 
@@ -11,7 +13,7 @@ FORCE_CPU = False
 if FORCE_CPU:
     set_default_device("cpu")
 
-set_data_dir("~/tmp/data_deepobs")
+set_data_dir(os.path.expanduser("~/tmp/data_deepobs"))
 
 
 def extensions_fn():
