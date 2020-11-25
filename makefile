@@ -104,7 +104,6 @@ format-check: black-check isort-check pydocstyle-check darglint-check
 # Installation
 
 install:
-	@pip install -r requirements.txt
 	@pip install .
 
 install-lint:
@@ -121,8 +120,6 @@ install-devtools:
 	@pip install -r requirements-dev.txt
 
 install-dev: install-devtools
-	@echo "Install dependencies..."
-	@pip install -r requirements.txt
 	@echo "Uninstall existing version of backobs..."
 	@pip uninstall backobs
 	@echo "Install backobs in editable mode..."
