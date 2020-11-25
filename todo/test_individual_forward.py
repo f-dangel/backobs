@@ -58,10 +58,14 @@ def manual_forward_pass_loop_correct(
             same_symbol = "✓" if same else "❌"
             print(
                 "{} [{}, l2_reg: {},".format(
-                    same_symbol, name, add_regularization_if_available,
+                    same_symbol,
+                    name,
+                    add_regularization_if_available,
                 ),
                 " BackPACK: {}] DeepOBS: {:.5f}, manual for-loop: {:.5f}".format(
-                    extend, loss, manual_loss,
+                    extend,
+                    loss,
+                    manual_loss,
                 ),
             )
             if not same:
@@ -93,7 +97,9 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "tproblem_cls", type=str, help="Name of the DeepOBS testproblem",
+        "tproblem_cls",
+        type=str,
+        help="Name of the DeepOBS testproblem",
     )
     parser.add_argument(
         "--add_regularization_if_available",
@@ -101,13 +107,21 @@ if __name__ == "__main__":
         help="Add regularization loss",
     )
     parser.add_argument(
-        "--extend", action="store_true", help="Extend DeepOBS problem with BackPACK",
+        "--extend",
+        action="store_true",
+        help="Extend DeepOBS problem with BackPACK",
     )
     parser.add_argument(
-        "--batch_size", type=int, default=3, help="Batch size",
+        "--batch_size",
+        type=int,
+        default=3,
+        help="Batch size",
     )
     parser.add_argument(
-        "--seed", type=int, default=0, help="Random seed",
+        "--seed",
+        type=int,
+        default=0,
+        help="Random seed",
     )
     parser.add_argument(
         "--verbose",

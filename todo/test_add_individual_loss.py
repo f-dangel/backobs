@@ -65,6 +65,10 @@ if __name__ == "__main__":
 
             print(
                 "{} [{}, BackPACK: {}] losses: {}, accuracies: {}".format(
-                    same_symbol, tp_cls.__name__, use_backpack, losses, accuracies,
+                    same_symbol,
+                    tp_cls.__name__,
+                    use_backpack,
+                    losses,
+                    accuracies,
                 )
             )

@@ -22,8 +22,14 @@ def extensions_fn():
 
 optimizer_class_sgd = SGD
 hyperparams_sgd = {
-    "lr": {"type": float, "default": 0.1,},
-    "momentum": {"type": float, "default": 0.0,},
+    "lr": {
+        "type": float,
+        "default": 0.1,
+    },
+    "momentum": {
+        "type": float,
+        "default": 0.0,
+    },
 }
 
 runner = BackpackRunner(optimizer_class_sgd, hyperparams_sgd, extensions_fn)

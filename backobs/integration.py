@@ -1,6 +1,7 @@
 """Integrate BackPACK into DeepOBS problems."""
 
 import contextlib
+import copy
 import types
 
 import torch
@@ -8,6 +9,8 @@ import torch
 from backobs.utils import SUPPORTED, has_no_accuracy
 from backpack import extend as backpack_extend
 from deepobs.pytorch.testproblems.testproblem import TestProblem
+
+original_loss_function_savefield = "_old_loss_function"
 
 
 def extend(tproblem: TestProblem, debug=False):
@@ -42,8 +45,6 @@ def extend(tproblem: TestProblem, debug=False):
             f"No support for ℓ₂ regularization (got l2_reg={tproblem._l2_reg})"
         )
 
-    original_loss_function_savefield = "_old_loss_function"
-
     already_extended = hasattr(tproblem, original_loss_function_savefield)
     if already_extended:
         raise ValueError("Test problem is already extended")
@@ -62,7 +63,9 @@ def extend(tproblem: TestProblem, debug=False):
             torch.nn.Module: Module used to compute the loss from the network
                 prediction.
         """
-        original_loss_function = getattr(tproblem, original_loss_function_savefield)
+        original_loss_function = copy.deepcopy(
+            getattr(tproblem, original_loss_function_savefield)
+        )
         return backpack_extend(original_loss_function(reduction=reduction), debug=debug)
 
     tproblem.loss_function = new_loss_function
@@ -71,7 +74,7 @@ def extend(tproblem: TestProblem, debug=False):
 
 
 def extend_with_access_unreduced_loss(
-    tproblem: TestProblem, savefield="_unreduced_loss", debug=False
+    tproblem: TestProblem, savefield="_unreduced_loss", detach=False, debug=False
 ):
     """Same as `extend`, modifies loss computation to provide access to unreduced loss.
 
@@ -79,6 +82,7 @@ def extend_with_access_unreduced_loss(
         tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
         savefield (str): Name of attribute through which individual loss can be
             accessed.
+        detach (bool): Detach the unreduced loss.
         debug (bool): Activate debugging mode of BackPACK's `extend` function.
 
     Returns:
@@ -86,12 +90,14 @@ def extend_with_access_unreduced_loss(
             such that the unreduced loss can be accessed via the mini-batch loss.
     """
     tproblem = extend(tproblem, debug=debug)
-    tproblem = _add_access_unreduced_loss(tproblem, savefield=savefield)
+    tproblem = _add_access_unreduced_loss(tproblem, savefield=savefield, detach=detach)
 
     return tproblem
 
 
-def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss"):
+def _add_access_unreduced_loss(
+    tproblem: TestProblem, savefield="_unreduced_loss", detach=False
+):
     """Provide access to unreduced losses when evaluating the reduced loss.
 
     Overwrites the `get_batch_loss_and_accuracy_func` of a testproblem. The function
@@ -106,6 +112,7 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
         tproblem (TestProblem): DeepOBS testproblem, which has already been set up.
         savefield (str): Name of attribute through which individual loss can
             be accessed.
+        detach (bool): Detach the unreduced loss.
 
     Details:
         - Adding a function to an instance: https://stackoverflow.com/a/8961717
@@ -159,8 +166,17 @@ def _add_access_unreduced_loss(tproblem: TestProblem, savefield="_unreduced_loss
 
             with grad_ctx():
                 outputs = self.net(inputs)
+
+                original_loss_function = copy.deepcopy(
+                    getattr(tproblem, original_loss_function_savefield)
+                )
+                unreduced_loss = original_loss_function(reduction="none")(
+                    outputs, labels
+                )
+                if detach:
+                    unreduced_loss = unreduced_loss.detach()
+
                 loss = self.loss_function(reduction=reduction)(outputs, labels)
-                unreduced_loss = self.loss_function(reduction="none")(outputs, labels)
 
             if has_no_accuracy(self):
                 accuracy = 0.0
